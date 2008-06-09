@@ -626,6 +626,13 @@ void P_FallingDamage (edict_t * ent)
 		return;
 	}
 
+	// disable leg damage sound when leg damage disabled
+	if(((int)dmflags->value & DF_NO_FALLING))
+	{
+		ent->s.event = EV_FALLSHORT;
+		return;
+	}
+
 	if (ent->health > 0)
 	{
 		if (delta >= 55)

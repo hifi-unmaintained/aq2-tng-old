@@ -1597,6 +1597,7 @@ void ClientCommand (edict_t * ent)
 	}
 	else if (Q_stricmp (cmd, "say_team") == 0)
 	{
+		if(!teamplay->value) return; // disable mm2 trigger flooding
 		Cmd_Say_f (ent, true, false, false);
 		return;
 	}
