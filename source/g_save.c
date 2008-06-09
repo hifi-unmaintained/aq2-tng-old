@@ -576,6 +576,7 @@ void InitGame (void)
 	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);
 
 	dm_shield = gi.cvar ("dm_shield", "0", 0);
+	instagib = gi.cvar ("instagib", "0", CVAR_SERVERINFO | CVAR_LATCH);
 
 	respawn_effect = gi.cvar("respawn_effect", "0", 0);
 

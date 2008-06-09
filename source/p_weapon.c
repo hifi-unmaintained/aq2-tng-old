@@ -941,6 +941,8 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	gitem_t *replacement;
 	edict_t *temp = NULL;
 
+	if(instagib->value) return;
+
 	if ((int) (dmflags->value) & DF_WEAPONS_STAY)
 		return;
 
@@ -3985,6 +3987,8 @@ void Sniper_Fire (edict_t * ent)
 	else if (ent->client->resp.sniper_mode == SNIPER_4X)
 		spread = 0;
 	else if (ent->client->resp.sniper_mode == SNIPER_6X)
+		spread = 0;
+	else if (instagib->value)
 		spread = 0;
 
 	if (is_quad)

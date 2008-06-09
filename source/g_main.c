@@ -397,6 +397,7 @@ cvar_t *teamdm_respawn;
 cvar_t *respawn_effect;
 
 cvar_t *dm_shield;
+cvar_t *instagib;
 
 cvar_t *item_respawnmode;
 

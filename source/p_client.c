@@ -1685,8 +1685,8 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 				      2, GRENADE_DAMRAD * 2, false);
 	}
 	// Gibbing on really hard HC hit
-	if ((((self->health < -35) && (meansOfDeath == MOD_HC)) ||
-	     ((self->health < -20) && (meansOfDeath == MOD_M3))) && (sv_gib->value)) {
+	if (((((self->health < -35) && (meansOfDeath == MOD_HC)) ||
+	     ((self->health < -20) && (meansOfDeath == MOD_M3))) && (sv_gib->value)) || instagib->value) {
 		gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n = 0; n < 5; n++)
 			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);
@@ -1785,15 +1785,17 @@ void InitClientPersistant(gclient_t * client)
 */
 
 	memset(&client->pers, 0, sizeof(client->pers));
-	// changed to mk23
-	item = GET_ITEM(MK23_NUM);
+	if(instagib->value)
+		item = GET_ITEM(SNIPER_NUM);
+	else	// changed to mk23
+		item = GET_ITEM(MK23_NUM);
 	client->pers.selected_item = ITEM_INDEX(item);
 	client->pers.inventory[client->pers.selected_item] = 1;
 
 	client->pers.weapon = item;
 	client->pers.lastweapon = item;
 
-	if ((int) wp_flags->value & WPF_KNIFE) {
+	if ((int) wp_flags->value & WPF_KNIFE && !instagib->value) {
 		item = GET_ITEM(KNIFE_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
 		if (!(int) wp_flags->value & WPF_MK23) {
@@ -1823,12 +1825,16 @@ void InitClientPersistant(gclient_t * client)
 	client->machinegun_shots = 0;
 	client->unique_weapon_total = 0;
 	client->unique_item_total = 0;
-	if ((int) wp_flags->value & WPF_MK23) {
-		client->curr_weap = MK23_NUM;
-	} else if ((int) wp_flags->value & WPF_KNIFE) {
-		client->curr_weap = KNIFE_NUM;
+	if(instagib->value) {
+		client->curr_weap = SNIPER_NUM;
 	} else {
-		client->curr_weap = MK23_NUM;
+		if ((int) wp_flags->value & WPF_MK23) {
+			client->curr_weap = MK23_NUM;
+		} else if ((int) wp_flags->value & WPF_KNIFE) {
+			client->curr_weap = KNIFE_NUM;
+		} else {
+			client->curr_weap = MK23_NUM;
+		}
 	}
 	//AQ2:TNG - Slicer Moved This To Here
 	//client->pers.num_kills = 0;
@@ -2551,6 +2557,12 @@ void EquipClientDM(edict_t * ent)
 	gitem_t *item;
 
 	client = ent->client;
+
+	if(instagib->value)
+	{
+		client->sniper_rds = 99;
+		return;
+	}
 
 	if (!Q_stricmp(strtwpn->string, MK23_NAME))
 		return;

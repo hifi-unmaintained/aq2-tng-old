@@ -1197,6 +1197,8 @@ void OpenWeaponMenu (edict_t * ent)
 		};
 	int pos;
 
+	if(instagib->value) return;
+
 	if ((int) wp_flags->value & ~(WPF_MK23 | WPF_GRENADE))
 	{
 		pos = 4;

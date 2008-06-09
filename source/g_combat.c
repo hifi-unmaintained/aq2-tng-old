@@ -721,6 +721,8 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	vec_t dist;
 	float targ_maxs2;		//FB 6/1/99
 
+	if(instagib->value) damage = 9999;
+
 	// do this before teamplay check
 	if (!targ->takedamage)
 		return;

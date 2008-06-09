@@ -109,7 +109,7 @@ void SpawnSpecs(edict_t * ent)
 	edict_t *spot;
 	int i;
 
-	if(item_respawnmode->value)
+	if(item_respawnmode->value || instagib->value)
 		return;
 
 	for(i = 0; i<ITEM_COUNT; i++)
@@ -187,6 +187,8 @@ void DeadDropSpec(edict_t * ent)
 	gitem_t *spec;
 	edict_t *dropped;
 	int i;
+
+	if(instagib->value) return;
 
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
