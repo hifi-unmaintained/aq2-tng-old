@@ -107,7 +107,7 @@ BASE_CFLAGS=-DC_ONLY
 ifdef DEBUG
 	CFLAGS=$(BASE_CFLAGS) -g -O2 -Wall
 else
-	CFLAGS=$(BASE_CFLAGS) -march=i586 -mcpu=i586 -O6 -ffast-math -funroll-loops \
+	CFLAGS=$(BASE_CFLAGS) -march=i586 -mtune=i586 -O6 -ffast-math -funroll-loops \
 		-fomit-frame-pointer -fexpensive-optimizations -falign-loops=2 \
 		-falign-jumps=2 -falign-functions=2
 endif
