@@ -2058,7 +2058,7 @@ void CheckTeamRules (void)
 	}
 
 // AQ2:TNG - JBravo adding UVtime
-	if(ctf->value)
+	if(ctf->value || dm_shield->value)
 	{
 		for (i = 0; i < maxclients->value; i++)
 		{

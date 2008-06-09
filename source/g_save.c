@@ -575,6 +575,8 @@ void InitGame (void)
 	teamdm = gi.cvar ("teamdm", "0", CVAR_LATCH);
 	teamdm_respawn = gi.cvar ("teamdm_respawn", "2", 0);
 
+	dm_shield = gi.cvar ("dm_shield", "0", 0);
+
 	respawn_effect = gi.cvar("respawn_effect", "0", 0);
 
 	item_respawnmode = gi.cvar ("item_respawnmode", "0", CVAR_LATCH);

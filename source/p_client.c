@@ -2836,6 +2836,9 @@ void PutClientInServer(edict_t * ent)
 			ent->client->ctf_uvtime = uvtime->value;
 		}
 	}
+	if(dm_shield->value && !teamplay->value && uvtime->value) {
+		ent->client->ctf_uvtime = uvtime->value;
+	}
 //FIREBLADE
 	if (!going_observer && !teamplay->value) {	// this handles telefrags...
 		KillBox(ent);

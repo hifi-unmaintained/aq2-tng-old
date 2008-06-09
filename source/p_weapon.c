@@ -1897,9 +1897,13 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 //FIREBLADE
 // AQ2:TNG - JBravo adding UVtime
 	  && (ent->solid != SOLID_NOT || ent->deadflag == DEAD_DEAD)
-	  && !lights_camera_action && !ent->client->ctf_uvtime)
+	  && !lights_camera_action && (!ent->client->ctf_uvtime || dm_shield->value > 1))
 //FIREBLADE
 	{
+	  if(ent->client->ctf_uvtime) {
+		  ent->client->ctf_uvtime = 0;
+		  gi.centerprintf(ent, "Shields are DOWN!");
+	  }
 	  ent->client->latched_buttons &= ~BUTTON_ATTACK;
 	  switch (ent->client->curr_weap)
 	    {
@@ -3982,7 +3986,6 @@ void Sniper_Fire (edict_t * ent)
 		spread = 0;
 	else if (ent->client->resp.sniper_mode == SNIPER_6X)
 		spread = 0;
-
 
 	if (is_quad)
 		damage *= 1.5f;

@@ -871,6 +871,8 @@ extern cvar_t *teamdm;
 extern cvar_t *teamdm_respawn;
 extern cvar_t *respawn_effect;
 
+extern cvar_t *dm_shield;
+
 extern cvar_t *item_respawnmode;
 
 extern cvar_t *item_respawn;
