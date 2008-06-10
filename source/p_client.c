@@ -1686,7 +1686,8 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 	}
 	// Gibbing on really hard HC hit
 	if (((((self->health < -35) && (meansOfDeath == MOD_HC)) ||
-	     ((self->health < -20) && (meansOfDeath == MOD_M3))) && (sv_gib->value)) || instagib->value) {
+	     ((self->health < -20) && (meansOfDeath == MOD_M3))) && (sv_gib->value)) ||
+	     (instagib->value && meansOfDeath == MOD_SNIPER)) {
 		gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
 		for (n = 0; n < 5; n++)
 			ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_ORGANIC);

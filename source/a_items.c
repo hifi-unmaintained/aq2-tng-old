@@ -188,8 +188,6 @@ void DeadDropSpec(edict_t * ent)
 	edict_t *dropped;
 	int i;
 
-	if(instagib->value) return;
-
 	for(i = 0; i<ITEM_COUNT; i++)
 	{
 		if (INV_AMMO(ent, tnums[i]) > 0) {

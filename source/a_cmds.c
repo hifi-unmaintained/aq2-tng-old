@@ -400,7 +400,7 @@ void _SetSniper(edict_t * ent, int zoom)
 {
 	int desired_fov, sniper_mode, oldmode;
 
-	if(instagib->value < 2) return;
+	if(instagib->value == 1) return;
 
 	switch (zoom) {
 	default:
