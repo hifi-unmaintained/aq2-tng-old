@@ -92,9 +92,8 @@
 
 #standard package is "as" (short for Action Source?), "PG" is "PG BUND"
 
-PACKAGE="as-PG1.25"
-
-VERSION="1.52"
+PACKAGE=aq2-tng
+VERSION=2.81-h1.1
 
 # Uncomment this for debugging symbols and compiler warnings
 #DEBUG=1
@@ -165,6 +164,15 @@ depend:
 install:
 	cp gamei386.so ../action/
 	strip ../action/gamei386.so
+
+package: clean
+	rm -rf $(PACKAGE)-$(VERSION)-src/
+	mkdir -p $(PACKAGE)-$(VERSION)-src/source/addons/tngbot/
+	cp -f *.c *.h Makefile.* *.vcproj Makefile $(PACKAGE)-$(VERSION)-src/source/
+	cp addons/tngbot/*.* $(PACKAGE)-$(VERSION)-src/source/addons/tngbot/
+	cp ../*.txt $(PACKAGE)-$(VERSION)-src/
+	tar -zcvvf $(PACKAGE)-$(VERSION)-src.tar.gz $(PACKAGE)-$(VERSION)-src/
+	rm -rf $(PACKAGE)-$(VERSION)-src/
 
 bindist: game$(ARCH).$(SHLIBEXT)
 	strip gamei386.so
