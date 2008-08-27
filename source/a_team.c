@@ -754,6 +754,13 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 	if (ctf->value && !matchmode->value)
 	{
 		Q_strncpyz(t, s, sizeof(t));
+
+		// enable forcing skin base
+		if(ctf_skin->string[0]) {
+			strcpy(t, ctf_skin->string);
+			strcat(t, "/");
+		}
+
 		if ((p = strrchr (t, '/')) != NULL)
 			p[1] = 0;
 		else
