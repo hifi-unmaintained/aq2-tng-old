@@ -1987,6 +1987,8 @@ void AddSplat (edict_t * self, vec3_t point, trace_t * tr);
 #define FLAG_T1_NUM				20
 #define FLAG_T2_NUM				21
 
+#define GRAPPLE_NUM				22
+
 #define WEAPON_COUNT			9
 #define ITEM_COUNT				6
 #define AMMO_COUNT				5

@@ -2447,7 +2447,16 @@ void EquipClient(edict_t * ent)
 
 	// add grapple (hifi)
 	if(ctf_grapple->value) {
-		client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+		// give grapple only if the weapon selected isn't M4/MP5/SSG
+		if(ctf_grapple_limit->value) {
+			if(client->resp.weapon->typeNum != M4_NUM &&
+					client->resp.weapon->typeNum != MP5_NUM &&
+					client->resp.weapon->typeNum != SNIPER_NUM) {
+				client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+			}
+		} else {
+			client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+		}
 	}
 
 	if (client->resp.item->typeNum == BAND_NUM) {

@@ -1801,7 +1801,7 @@ always owned, never in the world^M
 		NULL,
 		0,
 		/* precache */ "weapons/grapple/grfire.wav weapons/grapple/grpull.wav weapons/grapple/grhang.wav weapons/grapple/grreset.wav weapons/grapple/grhit.wav",
-		NO_NUM
+		GRAPPLE_NUM
 	},
 
 

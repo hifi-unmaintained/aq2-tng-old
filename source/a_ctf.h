@@ -41,6 +41,7 @@ extern cvar_t *ctf_dropflag;
 extern cvar_t *ctf_respawn;
 extern cvar_t *ctf_skin;
 extern cvar_t *ctf_grapple;
+extern cvar_t *ctf_grapple_limit;
 
 #define CTF_TEAM1_SKIN "ctf_r"
 #define CTF_TEAM2_SKIN "ctf_b"

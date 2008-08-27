@@ -668,6 +668,7 @@ void ChangeWeapon (edict_t * ent)
 	case SNIPER_NUM:
 	case DUAL_NUM:
 	case KNIFE_NUM:
+	case GRAPPLE_NUM:
 		ent->client->curr_weap = ent->client->pers.weapon->typeNum;
 		break;
 	case GRENADE_NUM:
@@ -1787,6 +1788,8 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 	    ent->client->burst = 0;
 	    break;
 	  }
+	case GRAPPLE_NUM:
+		break;
 
 	default:
 	  gi.dprintf ("Activated unknown weapon.\n");
@@ -2086,6 +2089,11 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
 		  bOut = 1;
 		break;
 	      }
+
+	case GRAPPLE_NUM:
+		bFire = 1;
+		bOut = 0;
+		break;
 
 
 	    default:
