@@ -288,6 +288,8 @@
 #define		getEnt(entnum)	(edict_t *)((char *)globals.edicts + (globals.edict_size * entnum))	//AQ:TNG Slicer - This was missing
 #define		GAMEVERSION			"action"	// the "gameversion" client command will print this plus compile date
 
+#include	"g_grapple.h"
+
 // protocol bytes that can be directly added to messages
 #define svc_muzzleflash         1
 #define svc_muzzleflash2        2
@@ -785,6 +787,7 @@ extern int snd_fry;
 #define MOD_KICK                        45
 //PG BUND
 #define MOD_PUNCH                       50
+#define MOD_GRAPPLE			51
 #define MOD_FRIENDLY_FIRE               0x8000000
 
 
@@ -1647,6 +1650,10 @@ struct gclient_s
   int desired_zoom;		//either 0, 1, 2, 4 or 6. This is set to 0 if no zooming shall be done, and is set to 0 after zooming is done.
 
   int ctf_uvtime;		// AQ2:TNG - JBravo adding UVtime
+
+  void *ctf_grapple;           // entity of grapple
+  int ctf_grapplestate;               // true if pulling
+  float ctf_grapplereleasetime; // time of grapple release
 };
 
 

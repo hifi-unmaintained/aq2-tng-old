@@ -1295,6 +1295,12 @@ Weapon_Generic (edict_t * ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST,
   if (ent->s.modelindex != 255)
     return;			// not on client, so VWep animations could do wacky things
 
+  if(ent->client->ctf_grapple) {
+	  if (Q_stricmp(ent->client->pers.weapon->pickup_name, "Grapple") == 0 &&
+			  ent->client->weaponstate == WEAPON_FIRING)
+		  return;
+  }
+
 //FIREBLADE
   if (ent->client->weaponstate == WEAPON_FIRING &&
       ((ent->solid == SOLID_NOT && ent->deadflag != DEAD_DEAD) ||

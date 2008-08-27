@@ -64,6 +64,7 @@ cvar_t *ctf_mode;
 cvar_t *ctf_dropflag;
 cvar_t *ctf_respawn;
 cvar_t *ctf_skin;
+cvar_t *ctf_grapple;
 
 /*--------------------------------------------------------------------------*/
 
