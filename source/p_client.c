@@ -1635,10 +1635,11 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 		//TossClientWeapon (self);
 		TossItemsOnDeath(self);
 
-		if (ctf->value) {
+		if (ctf->value)
 			CTFDeadDropFlag(self);
-			CTFPlayerResetGrapple(self);
-		}
+
+		// let's be safe, if the player was killed and grapple disabled before it
+		CTFPlayerResetGrapple(self);
 
 		//FIREBLADE
 		if (deathmatch->value && !teamplay->value)
