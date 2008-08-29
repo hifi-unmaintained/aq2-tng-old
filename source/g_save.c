@@ -544,6 +544,7 @@ void InitGame (void)
 	ctf_respawn = gi.cvar ("ctf_respawn", "4", 0);
 	ctf_skin = gi.cvar ("ctf_skin", "", CVAR_LATCH);
 	ctf_grapple = gi.cvar ("ctf_grapple", "0", 0);
+	ctf_grapple = gi.cvar ("ctf_grapple_sticky", "1", 0);
 	ctf_grapple_limit = gi.cvar ("ctf_grapple_limit", "0", 0);
 	mv_public = gi.cvar ("mv_public", "0", 0);	//slicer 
 	vk_public = gi.cvar ("vk_public", "0", 0);	//slicer

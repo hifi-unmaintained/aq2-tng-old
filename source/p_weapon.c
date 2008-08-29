@@ -614,7 +614,7 @@ void ChangeWeapon (edict_t * ent)
 		ent->client->grenade_time = 0;
 	}
 
-	if(ent->client->ctf_grapple)
+	if(ent->client->ctf_grapple && !ctf_grapple_sticky->value)
 		CTFPlayerResetGrapple(ent);
 
 	// zucc - prevent reloading queue for previous weapon from doing anything
