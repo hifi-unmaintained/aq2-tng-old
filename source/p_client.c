@@ -2584,6 +2584,10 @@ void EquipClientDM(edict_t * ent)
 		return;
 	}
 
+	// add grapple (hifi)
+	if(ctf_grapple->value)
+		client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
+
 	if (!Q_stricmp(strtwpn->string, MK23_NAME))
 		return;
 
