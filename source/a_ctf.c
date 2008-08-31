@@ -64,6 +64,7 @@ cvar_t *ctf_mode;
 cvar_t *ctf_dropflag;
 cvar_t *ctf_respawn;
 cvar_t *ctf_skin;
+cvar_t *ctf_capbonus;
 cvar_t *ctf_grapple;
 cvar_t *ctf_grapple_sticky;
 cvar_t *ctf_grapple_limit;
@@ -456,6 +457,43 @@ void CTFResetFlags(void)
 	CTFResetFlag(TEAM2);
 }
 
+/* give client full health and some ammo for reward */
+void CTFCapBonus(edict_t * ent)
+{
+	// give special weapon ammo
+	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_ANUM))] += 1;
+	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_ANUM))] += 1;
+	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M3_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SHELL_ANUM))] += 7;
+	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SHELL_ANUM))] += 12;
+
+	// give common stuff
+	ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MK23_ANUM))] += 1;
+	ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
+
+	// stop bandaging if doing so, stop bleeding, full health
+	if(ent->client->bandaging) {
+		ent->client->weaponstate = WEAPON_ACTIVATING;
+		ent->client->ps.gunframe = 0;
+	}
+	ent->client->leg_noise = 0;
+	ent->client->leg_damage = 0;
+	ent->client->leghits = 0;
+	ent->client->bleeding = 0;
+	ent->client->bleed_remain = 0;
+	ent->client->bandaging = 0;
+	ent->client->leg_dam_count = 0;
+	ent->client->attacker = NULL;
+	ent->client->bandage_stopped = 0;
+	ent->client->pers.health = ent->client->pers.max_health;
+	ent->health = ent->max_health;
+
+	gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded with full health and some ammunition.\n\nNow go get some more!");
+}
+
 qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 {
 	int team, i;
@@ -506,6 +544,9 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 
 				// other gets another 10 frag bonus
 				other->client->resp.score += CTF_CAPTURE_BONUS;
+
+				if(ctf_capbonus->value)
+					CTFCapBonus(other);
 
 				// Ok, let's do the player loop, hand out the bonuses
 				for (i = 1; i <= maxclients->value; i++) {

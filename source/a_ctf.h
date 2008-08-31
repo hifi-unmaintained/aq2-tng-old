@@ -40,6 +40,7 @@ extern cvar_t *ctf_mode;
 extern cvar_t *ctf_dropflag;
 extern cvar_t *ctf_respawn;
 extern cvar_t *ctf_skin;
+extern cvar_t *ctf_capbonus;
 extern cvar_t *ctf_grapple;
 extern cvar_t *ctf_grapple_sticky;
 extern cvar_t *ctf_grapple_limit;

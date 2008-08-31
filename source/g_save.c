@@ -543,6 +543,7 @@ void InitGame (void)
 	ctf_dropflag = gi.cvar ("ctf_dropflag", "1", 0);
 	ctf_respawn = gi.cvar ("ctf_respawn", "4", 0);
 	ctf_skin = gi.cvar ("ctf_skin", "", CVAR_LATCH);
+	ctf_capbonus = gi.cvar ("ctf_capbonus", "0", 0);
 	ctf_grapple = gi.cvar ("ctf_grapple", "0", 0);
 	ctf_grapple_sticky = gi.cvar ("ctf_grapple_sticky", "1", 0);
 	ctf_grapple_limit = gi.cvar ("ctf_grapple_limit", "0", 0);
