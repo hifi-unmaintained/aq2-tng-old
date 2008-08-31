@@ -439,6 +439,70 @@ void ReprintMOTD (edict_t * ent, pmenu_t * p)
 	PrintMOTD (ent);
 }
 
+void JoinTeamAuto (edict_t * ent, pmenu_t * p)
+{
+	int i, num1 = 0, num2 = 0, num3 = 0;
+
+	for (i = 0; i < (int)maxclients->value; i++)
+	{
+		if (!g_edicts[i + 1].inuse)
+			continue;
+		if (game.clients[i].resp.team == TEAM1)
+			num1++;
+		else if (game.clients[i].resp.team == TEAM2)
+			num2++;
+		else if (game.clients[i].resp.team == TEAM3)
+			num3++;
+	}
+
+	i = 0;
+	if (num1 > num2)
+		i = TEAM2;
+	else if (num2 > num1)
+		i = TEAM1;
+	else if (teams[TEAM1].score > teams[TEAM2].score)
+		i = TEAM2;
+	else if (teams[TEAM2].score > teams[TEAM1].score)
+		i = TEAM1;
+	else
+		i = TEAM1;
+
+	if (use_3teams->value)
+	{
+		if (i == TEAM1)
+		{
+			if (num3 > num1)
+				i =  TEAM1;
+			else if (num1 > num3)
+				i = TEAM3;
+			else if (teams[TEAM1].score > teams[TEAM3].score)
+				i = TEAM3;
+			else
+				i = TEAM1;
+		}
+		else
+		{
+			if (num3 > num2)
+				i = TEAM2;
+			else if (num2 > num3)
+				i = TEAM3;
+			else if (teams[TEAM2].score > teams[TEAM3].score)
+				i = TEAM3;
+			else
+				i = TEAM2;
+		}
+
+		if(i == TEAM3)
+			JoinTeam(ent, TEAM3, 0);
+	}
+
+	if(i == TEAM1)
+		JoinTeam(ent, TEAM1, 0);
+	else if(i == TEAM2)
+		JoinTeam(ent, TEAM2, 0);
+	// no team to join?!
+}
+
 void JoinTeam1 (edict_t * ent, pmenu_t * p)
 {
 	JoinTeam (ent, TEAM1, 0);
@@ -714,6 +778,8 @@ pmenu_t joinmenu[] = {
   {NULL /* team 2 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam2},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 3 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam3},
+  {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL /* auto team */ , PMENU_ALIGN_LEFT, NULL, JoinTeamAuto},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer
@@ -1309,7 +1375,7 @@ void OpenWeaponMenu (edict_t * ent)
 }
 
 // AQ2:TNG Deathwatch - Updated this for the new menu
-int UpdateJoinMenu (edict_t * ent)
+void UpdateJoinMenu (edict_t * ent)
 {
 	static char levelname[28];
 	static char team1players[28];
@@ -1323,8 +1389,8 @@ int UpdateJoinMenu (edict_t * ent)
 		joinmenu[4].SelectFunc = JoinTeam1;
 		joinmenu[6].text = "Join Blue Team";
 		joinmenu[6].SelectFunc = JoinTeam2;
-		joinmenu[8].text = NULL;
-		joinmenu[8].SelectFunc = NULL;
+		joinmenu[11].text = "Auto-join team";
+		joinmenu[11].SelectFunc = JoinTeamAuto;
 		if (ctf_forcejoin->string && *ctf_forcejoin->string)
 		{
 			if (Q_stricmp (ctf_forcejoin->string, "red") == 0)
@@ -1345,6 +1411,8 @@ int UpdateJoinMenu (edict_t * ent)
 		joinmenu[4].SelectFunc = JoinTeam1;
 		joinmenu[6].text = teams[TEAM2].name;
 		joinmenu[6].SelectFunc = JoinTeam2;
+		joinmenu[11].text = "Auto-join team";
+		joinmenu[11].SelectFunc = JoinTeamAuto;
 		if (use_3teams->value)
 		{
 			joinmenu[8].text = teams[TEAM3].name;
@@ -1392,45 +1460,6 @@ int UpdateJoinMenu (edict_t * ent)
 		joinmenu[9].text = team3players;
 	else
 		joinmenu[9].text = NULL;
-
-	i = 0;
-	if (num1 > num2)
-		i = TEAM2;
-	else if (num2 > num1)
-		i = TEAM1;
-	else if (teams[TEAM1].score > teams[TEAM2].score)
-		i = TEAM2;
-	else if (teams[TEAM2].score > teams[TEAM1].score)
-		i = TEAM1;
-	else
-		i = TEAM1;
-
-	if (use_3teams->value)
-	{
-		if (i == TEAM1)
-		{
-			if (num3 > num1)
-				i =  TEAM1;
-			else if (num1 > num3)
-				i = TEAM3;
-			else if (teams[TEAM1].score > teams[TEAM3].score)
-				i = TEAM3;
-			else
-				i = TEAM1;
-		}
-		else
-		{
-			if (num3 > num2)
-				i = TEAM2;
-			else if (num2 > num3)
-				i = TEAM3;
-			else if (teams[TEAM2].score > teams[TEAM3].score)
-				i = TEAM3;
-			else
-				i = TEAM2;
-		}
-	}
-	return i;
 }
 
 // AQ2:TNG END
@@ -1447,7 +1476,10 @@ void OpenJoinMenu (edict_t * ent)
 	}
 	//PG BUND - END (Tourney extension)
 
+	UpdateJoinMenu (ent);
+#if 0
 	team = UpdateJoinMenu (ent);
+
 	if (team == TEAM1)
 		team = 4;
 	else if (team == TEAM2)
@@ -1456,6 +1488,8 @@ void OpenJoinMenu (edict_t * ent)
 		team = 8;
 
 	PMenu_Open (ent, joinmenu, team, sizeof (joinmenu) / sizeof (pmenu_t));
+#endif
+	PMenu_Open (ent, joinmenu, 11, sizeof (joinmenu) / sizeof (pmenu_t));
 }
 
 int member_array (char *str, char *arr[], int num_elems)
