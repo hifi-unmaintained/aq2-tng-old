@@ -64,7 +64,7 @@ cvar_t *ctf_mode;
 cvar_t *ctf_dropflag;
 cvar_t *ctf_respawn;
 cvar_t *ctf_skin;
-cvar_t *ctf_capbonus;
+cvar_t *ctf_capreward;
 cvar_t *ctf_grapple;
 cvar_t *ctf_grapple_sticky;
 cvar_t *ctf_grapple_limit;
@@ -458,7 +458,7 @@ void CTFResetFlags(void)
 }
 
 /* give client full health and some ammo for reward */
-void CTFCapBonus(edict_t * ent)
+void CTFCapReward(edict_t * ent)
 {
 	// give special weapon ammo
 	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
@@ -491,7 +491,21 @@ void CTFCapBonus(edict_t * ent)
 	ent->client->pers.health = ent->client->pers.max_health;
 	ent->health = ent->max_health;
 
-	gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded with full health and some ammunition.\n\nNow go get some more!");
+	// hand out extra item
+	if(!ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KEV_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KEV_NUM))] = 1;
+	if(!ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(LASER_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(LASER_NUM))] = 1;
+
+	if(ent->client->resp.ctf_capstreak > 1) {
+		ent->health = ent->max_health*2;
+		ent->client->pers.health = ent->client->pers.max_health*2;
+		if(!ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HELM_NUM))])
+			ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HELM_NUM))] = 1;
+		gi.centerprintf(ent, "CAPTURED AGAIN!\n\nYou have been rewarded graciously.\n\nNow go get some more!");
+	} else {
+		gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded.\n\nNow go get some more!");
+	}
 }
 
 qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
@@ -545,8 +559,10 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 				// other gets another 10 frag bonus
 				other->client->resp.score += CTF_CAPTURE_BONUS;
 
-				if(ctf_capbonus->value)
-					CTFCapBonus(other);
+				other->client->resp.ctf_capstreak += 1;
+
+				if(ctf_capreward->value)
+					CTFCapReward(other);
 
 				// Ok, let's do the player loop, hand out the bonuses
 				for (i = 1; i <= maxclients->value; i++) {
