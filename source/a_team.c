@@ -441,7 +441,7 @@ void ReprintMOTD (edict_t * ent, pmenu_t * p)
 
 void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 {
-	int i, num1 = 0, num2 = 0, num3 = 0;
+	int i, num1 = 0, num2 = 0, num3 = 0, ctf_red = 0, ctf_blue = 0;
 
 	for (i = 0; i < (int)maxclients->value; i++)
 	{
@@ -455,6 +455,11 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 			num3++;
 	}
 
+	if(ctf->value) {
+		CTFCalcScores();
+		GetCTFScores(&ctf_red, &ctf_blue);
+	}
+
 	i = 0;
 	if (num1 > num2)
 		i = TEAM2;
@@ -464,6 +469,10 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 		i = TEAM2;
 	else if (teams[TEAM2].score > teams[TEAM1].score)
 		i = TEAM1;
+	else if(ctf->value && ctf_red > ctf_blue)
+		i = TEAM2;
+	else if(ctf->value && ctf_blue > ctf_red)
+		i = TEAM2;
 	else
 		i = TEAM1;
 

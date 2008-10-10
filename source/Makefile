@@ -93,7 +93,7 @@
 #standard package is "as" (short for Action Source?), "PG" is "PG BUND"
 
 PACKAGE=aq2-tng
-VERSION=2.81-h1.7
+VERSION=2.81-h1.8
 
 # Uncomment this for debugging symbols and compiler warnings
 #DEBUG=1

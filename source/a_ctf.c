@@ -469,6 +469,8 @@ void CTFCapReward(edict_t * ent)
 		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SHELL_ANUM))] += 7;
 	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
 		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SHELL_ANUM))] += 12;
+	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_NUM))])
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_ANUM))] += 6;
 
 	// give common stuff
 	ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MK23_ANUM))] += 1;
@@ -620,6 +622,8 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 	if (other->client->ctf_uvtime) {
 		other->client->ctf_uvtime = 0;
 		gi.centerprintf(other, "Flag taken! Shields are DOWN! Run for it!");
+	} else {
+		gi.centerprintf(other, "You've got the ENEMY FLAG! Run for it!");
 	}
 	// hey, its not our flag, pick it up
 	gi.bprintf(PRINT_HIGH, "%s got the %s flag!\n", other->client->pers.netname, CTFTeamName(team));
