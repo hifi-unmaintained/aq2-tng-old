@@ -714,6 +714,7 @@ pmenu_t creditsmenu[] = {
   {"ICE-M, Palmtree,", PMENU_ALIGN_LEFT, NULL, NULL},
 	{"Tempfile, Blackmonk,", PMENU_ALIGN_LEFT, NULL, NULL},
 	{"Dome, Papst, Apr/ Maniac", PMENU_ALIGN_LEFT, NULL, NULL},
+	{"Sync' hifi", PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {"Return to main menu", PMENU_ALIGN_LEFT, NULL, CreditsReturnToMain},
   {"TAB to exit menu", PMENU_ALIGN_LEFT, NULL, NULL},
@@ -788,8 +789,8 @@ pmenu_t joinmenu[] = {
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   {NULL /* team 3 */ , PMENU_ALIGN_LEFT, NULL, JoinTeam3},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
-  {NULL /* auto team */ , PMENU_ALIGN_LEFT, NULL, JoinTeamAuto},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
+  {NULL /* auto team */ , PMENU_ALIGN_LEFT, NULL, JoinTeamAuto},
   {NULL, PMENU_ALIGN_LEFT, NULL, NULL},
   //AQ2:TNG - Slicer
   {"Voting & Ignoring Menus", PMENU_ALIGN_LEFT, NULL, VotingMenu},

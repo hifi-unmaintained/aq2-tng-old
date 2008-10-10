@@ -460,21 +460,129 @@ void CTFResetFlags(void)
 /* give client full health and some ammo for reward */
 void CTFCapReward(edict_t * ent)
 {
-	// give special weapon ammo
-	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_ANUM))] += 1;
-	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_ANUM))] += 1;
-	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M3_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SHELL_ANUM))] += 7;
-	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SHELL_ANUM))] += 12;
-	if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_ANUM))] += 6;
+	gclient_t *client;
+	gitem_t *item;
+	edict_t etemp;
+	int band = 0;
 
-	// give common stuff
-	ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MK23_ANUM))] += 1;
-	ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
+	client = ent->client;
+
+	// give initial knife
+	if ((int)wp_flags->value & WPF_KNIFE)
+		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
+
+	if (client->resp.item->typeNum == BAND_NUM) {
+		band = 1;
+		if (tgren->value > 0)	// team grenades is turned on
+		{
+			item = GET_ITEM(GRENADE_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] += tgren->value;
+		}
+
+	}
+	// give pistol clips
+	if ((int)wp_flags->value & WPF_MK23) {
+		item = GET_ITEM(MK23_ANUM);
+		client->mk23_rds = client->mk23_max;
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] += 2;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] += 1;
+	}
+
+	int player_weapon = client->resp.weapon->typeNum;
+	// find out which weapon the player is holding in it's inventory
+	if(client->unique_weapon_total > 0) {
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(MP5_NUM))])
+			player_weapon = MP5_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M4_NUM))])
+			player_weapon = M4_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(M3_NUM))])
+			player_weapon = M3_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HC_NUM))])
+			player_weapon = HC_NUM;
+		if(ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(SNIPER_NUM))])
+			player_weapon = SNIPER_NUM;
+	}
+
+	// if player has no special weapon, give the initial one
+	if (player_weapon == MP5_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(MP5_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(MP5_ANUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 2;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+		client->mp5_rds = client->mp5_max;
+	} else if (player_weapon == M4_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(M4_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(M4_ANUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 2;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+		client->m4_rds = client->m4_max;
+	} else if (player_weapon == M3_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(M3_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 14;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 7;
+		client->shot_rds = client->shot_max;
+	} else if (player_weapon == HC_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(HC_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SHELL_ANUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 24;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 12;
+		client->cannon_rds = client->cannon_max;
+	} else if (player_weapon == SNIPER_NUM) {
+		if(client->unique_weapon_total < 1) {
+			item = GET_ITEM(SNIPER_NUM);
+			client->pers.inventory[ITEM_INDEX(item)] = 1;
+			client->unique_weapon_total = 1;
+		}
+		item = GET_ITEM(SNIPER_ANUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 20;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 10;
+		client->sniper_rds = client->sniper_max;
+	} else if (player_weapon == DUAL_NUM) {
+		item = GET_ITEM(DUAL_NUM);
+		client->pers.inventory[ITEM_INDEX(item)] = 1;
+
+		item = GET_ITEM(MK23_ANUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 4;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 2;
+		client->dual_rds = client->dual_max;
+	} else if (player_weapon == KNIFE_NUM) {
+		item = GET_ITEM(KNIFE_NUM);
+		if (band)
+			client->pers.inventory[ITEM_INDEX(item)] = 20;
+		else
+			client->pers.inventory[ITEM_INDEX(item)] = 10;
+	}
 
 	// stop bandaging if doing so, stop bleeding, full health
 	if(ent->client->bandaging) {
@@ -490,21 +598,20 @@ void CTFCapReward(edict_t * ent)
 	ent->client->leg_dam_count = 0;
 	ent->client->attacker = NULL;
 	ent->client->bandage_stopped = 0;
+	ent->client->idle_weapon = 0;
 	ent->client->pers.health = ent->client->pers.max_health;
 	ent->health = ent->max_health;
 
-	// hand out extra item
-	if(!ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KEV_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KEV_NUM))] = 1;
-	if(!ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(LASER_NUM))])
-		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(LASER_NUM))] = 1;
+	// automagically change to special in any case, it's fully reloaded
+	if(client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) {
+		client->newweapon = client->pers.weapon;
+		ReadySpecialWeapon(ent);
+	}
 
 	if(ent->client->resp.ctf_capstreak > 1) {
 		ent->health = ent->max_health*2;
 		ent->client->pers.health = ent->client->pers.max_health*2;
-		if(!ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HELM_NUM))])
-			ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(HELM_NUM))] = 1;
-		gi.centerprintf(ent, "CAPTURED AGAIN!\n\nYou have been rewarded graciously.\n\nNow go get some more!");
+		gi.centerprintf(ent, "CAPTURED AGAIN!\n\nYou have been rewarded with double health!\n\nNow go get some more!");
 	} else {
 		gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded.\n\nNow go get some more!");
 	}
