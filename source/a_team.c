@@ -1117,7 +1117,9 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	CheckForUnevenTeams ();
 	//AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
-	if ((ctf->value || teamdm->value) && team_round_going && (ent->inuse && ent->client->resp.team != NOTEAM))
+	// hifi: force spawn in ctf if LCA is running
+	if ((((ctf->value || teamdm->value) && team_round_going) || (ctf->value && lights_camera_action))
+			&& (ent->inuse && ent->client->resp.team != NOTEAM))
 	{
 		//    ent->client->resp.last_killed_target = NULL;
 		ResetKills (ent);
@@ -1986,6 +1988,10 @@ void MakeAllLivePlayersObservers ()
 		PutClientInServer (ent);
 		ent->client->resp.team = saveteam;
 	}
+
+	// hifi: fix "missing flag" bug when a flag is carried while other team goes empty
+	if(ctf->value)
+		CTFResetFlags();
 }
 
 // PrintScores: Prints the current score on the console
