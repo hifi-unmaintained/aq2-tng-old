@@ -472,7 +472,7 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 	else if(ctf->value && ctf_red > ctf_blue)
 		i = TEAM2;
 	else if(ctf->value && ctf_blue > ctf_red)
-		i = TEAM2;
+		i = TEAM1;
 	else
 		i = TEAM1;
 
