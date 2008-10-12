@@ -1,0 +1,102 @@
+=============================================================================
+      AQ2: The Next Generation - H1.10  --- H-changelog.txt
+=============================================================================
+----------------------------------------
+Changes since H1.9 to H1.10:
+----------------------------------------
+Fixes:
+- CTF: fix missing flag bug, happens when someone is carrying the enemy
+  flag and the other team goes empty
+- CTF: fix spawning bug when you join the team while
+  "Lights Camera Action" is on and you never spawn
+
+----------------------------------------
+Changes since H1.8 to H1.9:
+----------------------------------------
+Fixes:
+- CTF: probably fix endless bandaging bug when capturing a flag
+- fix team join menu where you could select an empty line
+
+Changes:
+- CTF: new rewarding system:
+  - give a knife
+  - fill up your pistol
+  - if you have a special gun -> fill it with ammo
+  - otherwise gives your selected gun with it's initial ammo
+  - full health, stop bleeding and remove leg damage
+  - bonus: if you cap more than once in a row: double health!
+----------------------------------------
+Changes since H1.7 to H1.8:
+----------------------------------------
+Fixes:
+- CTF: take the team scores in account when deciding the team in auto join
+- CTF: add sniper ammo reward, my bad
+
+New Features:
+- CTF: show the player a message when he steals the enemy flag
+
+----------------------------------------
+Changes since H1.6 to H1.7:
+----------------------------------------
+Changes:
+- CTF: ctf_capbonus renamed to ctf_capreward
+- CTF: some new rewards
+
+----------------------------------------
+Changes since H1.5 to H1.6:
+----------------------------------------
+New Features:
+- CTF: New cvar "ctf_capbonus" which gives a reward for capturing player
+
+----------------------------------------
+Changes since H1.4 to H1.5:
+----------------------------------------
+New Features:
+- New cvar "eventeams" which forces players to join the team with less players
+- Better auto joining which keeps teams balanced
+
+----------------------------------------
+Changes since H1.3 to H1.4:
+----------------------------------------
+Changes:
+- CTF: Grapple stickyness can be changed with a new cvar ctf_grapple_sticky
+
+----------------------------------------
+Changes since H1.2 to H1.3:
+----------------------------------------
+Changes:
+- Allow enabling grapple in DM 
+- Grapple now detaches from target when you change weapon
+  so you can't get stuck on walls
+
+----------------------------------------
+Changes since H1.1 to H1.2:
+----------------------------------------
+Fixes:
+- Fix server crash with grapple in teamplay
+- Reset grapple even if it's currently disabled, fixes possible server crash
+
+----------------------------------------
+Changes since H1.0 to H1.1:
+----------------------------------------
+New Features:
+- Automatic source packaging from version control
+- New cvar "motdname" which tells which file to read the MOTD from
+
+----------------------------------------
+Changes since M0.22 to H1.0:
+----------------------------------------
+Fixes:
+- Remove a few lines of code that broke compiling
+
+Changes:
+- More intelligent Makefile
+- Disable MM2 messages displayed as MM1 in DM
+- Disable leg damage sound when falling and fall damage disabled
+
+New Features:
+- CTF: model forcing (cvar ctf_skin)
+- CTF: grappling hook from Q2CTF (cvar ctf_grapple)
+- Experimental: limit grapple to certain "classes" (cvar ctf_grapple_limit)
+- deathmatch shield from CTF (cvar dm_shield)
+- Instagib mode (cvar instagib)
