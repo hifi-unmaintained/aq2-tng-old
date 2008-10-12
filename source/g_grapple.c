@@ -261,7 +261,9 @@ void CTFGrappleFire (edict_t *ent, vec3_t g_offset, int damage, int effect)
 	vec3_t	forward, right;
 	vec3_t	start;
 	vec3_t	offset;
+	vec3_t  velocity;
 	float volume = 1.0;
+	float speed;
 
 	if (ent->client->ctf_grapplestate > CTF_GRAPPLE_STATE_FLY)
 		return; // it's already out
@@ -279,7 +281,14 @@ void CTFGrappleFire (edict_t *ent, vec3_t g_offset, int damage, int effect)
 		volume = 0.2;
 
 	gi.sound (ent, CHAN_RELIABLE+CHAN_WEAPON, gi.soundindex("weapons/grapple/grfire.wav"), volume, ATTN_NORM, 0);
-	CTFFireGrapple (ent, start, forward, damage, CTF_GRAPPLE_SPEED, effect);
+
+	// hifi: adjust grapple speed
+	speed = CTF_GRAPPLE_SPEED;
+	if(ctf_grapple->value > 1) {
+		VectorCopy(ent->velocity, velocity);
+		speed += VectorNormalize(velocity)/2;
+	}
+	CTFFireGrapple (ent, start, forward, damage, speed, effect);
 
 #if 0
 	// send muzzle flash

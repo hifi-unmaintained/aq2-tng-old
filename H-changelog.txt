@@ -1,6 +1,13 @@
 =============================================================================
-      AQ2: The Next Generation - H1.11  --- H-changelog.txt
+      AQ2: The Next Generation - H1.12  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.11 to H1.12:
+----------------------------------------
+Changes:
+- ctf_grapple with value of 2 now adds half of your own speed to grapple
+  pulling is still the same
+
 ----------------------------------------
 Changes since H1.10 to H1.11:
 ----------------------------------------
