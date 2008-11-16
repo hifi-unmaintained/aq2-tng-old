@@ -1,6 +1,22 @@
 =============================================================================
-      AQ2: The Next Generation - H1.12  --- H-changelog.txt
+      AQ2: The Next Generation - H1.13  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.12 to H1.13:
+----------------------------------------
+Fixes:
+- CTF: bandage bug fixed when capturing a flag when bandage is almost finished
+
+Changes:
+- CTF: when kicking a player who is shooting the grapple it resets/lose focus
+- CTF: rewards changes a little bit:
+  - ammo is multiplied by cap streak
+  - health is multiplied by cap strak up to 400
+  - new messages
+ 
+New Features:
+- CTF: a player with more than 100 health points has a visible effect
+
 ----------------------------------------
 Changes since H1.11 to H1.12:
 ----------------------------------------

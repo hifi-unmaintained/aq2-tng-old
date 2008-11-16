@@ -463,8 +463,12 @@ void CTFCapReward(edict_t * ent)
 	gclient_t *client;
 	gitem_t *item;
 	edict_t etemp;
-	int band = 0;
+	int was_bandaging = 0;
+	int band;
 
+	ent->client->resp.ctf_capstreak++;
+
+	band = ent->client->resp.ctf_capstreak;
 	client = ent->client;
 
 	// give initial knife
@@ -472,7 +476,7 @@ void CTFCapReward(edict_t * ent)
 		ent->client->pers.inventory[ITEM_INDEX(GET_ITEM(KNIFE_NUM))] += 1;
 
 	if (client->resp.item->typeNum == BAND_NUM) {
-		band = 1;
+		band =+ 1;
 		if (tgren->value > 0)	// team grenades is turned on
 		{
 			item = GET_ITEM(GRENADE_NUM);
@@ -484,10 +488,7 @@ void CTFCapReward(edict_t * ent)
 	if ((int)wp_flags->value & WPF_MK23) {
 		item = GET_ITEM(MK23_ANUM);
 		client->mk23_rds = client->mk23_max;
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] += 2;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] += 1;
+		client->pers.inventory[ITEM_INDEX(item)] += 1*band;
 	}
 
 	int player_weapon = client->resp.weapon->typeNum;
@@ -513,10 +514,7 @@ void CTFCapReward(edict_t * ent)
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(MP5_ANUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 2;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
 		client->mp5_rds = client->mp5_max;
 	} else if (player_weapon == M4_NUM) {
 		if(client->unique_weapon_total < 1) {
@@ -525,10 +523,7 @@ void CTFCapReward(edict_t * ent)
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(M4_ANUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 2;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 1;
+		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
 		client->m4_rds = client->m4_max;
 	} else if (player_weapon == M3_NUM) {
 		if(client->unique_weapon_total < 1) {
@@ -537,10 +532,7 @@ void CTFCapReward(edict_t * ent)
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(SHELL_ANUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 14;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 7;
+		client->pers.inventory[ITEM_INDEX(item)] = 7*band;
 		client->shot_rds = client->shot_max;
 	} else if (player_weapon == HC_NUM) {
 		if(client->unique_weapon_total < 1) {
@@ -549,10 +541,7 @@ void CTFCapReward(edict_t * ent)
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(SHELL_ANUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 24;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 12;
+		client->pers.inventory[ITEM_INDEX(item)] = 12*band;
 		client->cannon_rds = client->cannon_max;
 	} else if (player_weapon == SNIPER_NUM) {
 		if(client->unique_weapon_total < 1) {
@@ -561,34 +550,29 @@ void CTFCapReward(edict_t * ent)
 			client->unique_weapon_total = 1;
 		}
 		item = GET_ITEM(SNIPER_ANUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 20;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 10;
+		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
 		client->sniper_rds = client->sniper_max;
 	} else if (player_weapon == DUAL_NUM) {
 		item = GET_ITEM(DUAL_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
 
 		item = GET_ITEM(MK23_ANUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 4;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 2;
+		client->pers.inventory[ITEM_INDEX(item)] = 2*band;
 		client->dual_rds = client->dual_max;
 	} else if (player_weapon == KNIFE_NUM) {
 		item = GET_ITEM(KNIFE_NUM);
-		if (band)
-			client->pers.inventory[ITEM_INDEX(item)] = 20;
-		else
-			client->pers.inventory[ITEM_INDEX(item)] = 10;
+		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
 	}
 
 	// stop bandaging if doing so, stop bleeding, full health
 	if(ent->client->bandaging) {
-		ent->client->weaponstate = WEAPON_ACTIVATING;
-		ent->client->ps.gunframe = 0;
+		//ent->client->weaponstate = WEAPON_ACTIVATING;
+		//ent->client->ps.gunframe = 0;
 	}
+
+	if(ent->client->bandaging || ent->client->bandage_stopped)
+		was_bandaging = 1;
+	
 	ent->client->leg_noise = 0;
 	ent->client->leg_damage = 0;
 	ent->client->leghits = 0;
@@ -597,24 +581,32 @@ void CTFCapReward(edict_t * ent)
 	ent->client->bandaging = 0;
 	ent->client->leg_dam_count = 0;
 	ent->client->attacker = NULL;
+
 	ent->client->bandage_stopped = 0;
 	ent->client->idle_weapon = 0;
-	ent->client->pers.health = ent->client->pers.max_health;
-	ent->health = ent->max_health;
 
 	// automagically change to special in any case, it's fully reloaded
-	if(client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) {
+	if((client->curr_weap != player_weapon && ent->client->weaponstate == WEAPON_READY) || was_bandaging) {
 		client->newweapon = client->pers.weapon;
+		ent->client->weaponstate = WEAPON_READY;
+		ent->client->ps.gunframe = 0;
 		ReadySpecialWeapon(ent);
 	}
 
-	if(ent->client->resp.ctf_capstreak > 1) {
-		ent->health = ent->max_health*2;
-		ent->client->pers.health = ent->client->pers.max_health*2;
-		gi.centerprintf(ent, "CAPTURED AGAIN!\n\nYou have been rewarded with double health!\n\nNow go get some more!");
-	} else {
-		gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded.\n\nNow go get some more!");
-	}
+	// give health times cap streak
+	ent->health = ent->max_health * (ent->client->resp.ctf_capstreak > 4 ? 4 : ent->client->resp.ctf_capstreak);
+	ent->client->pers.health = ent->health;
+
+	if(ent->client->resp.ctf_capstreak == 2)
+		gi.centerprintf(ent, "CAPTURED TWO TIMES IN A ROW!\n\nYou have been rewarded with DOUBLE health and ammo!\n\nNow go get some more!");
+	else if(ent->client->resp.ctf_capstreak == 3)
+		gi.centerprintf(ent, "CAPTURED THREE TIMES IN A ROW!\n\nYou have been rewarded with TRIPLE health and ammo!\n\nNow go get some more!");
+	else if(ent->client->resp.ctf_capstreak == 4)
+		gi.centerprintf(ent, "CAPTURED FOUR TIMES IN A ROW!\n\nYou have been rewarded with QUAD health and ammo!\n\nNow go get some more!");
+	else if(ent->client->resp.ctf_capstreak > 4)
+		gi.centerprintf(ent, "CAPTURED YET AGAIN!\n\nYou have been rewarded QUAD health and %d times your ammo!\n\nNow go get some more!",
+				ent->client->resp.ctf_capstreak);
+	else	gi.centerprintf(ent, "CAPTURED!\n\nYou have been rewarded.\n\nNow go get some more!");
 }
 
 qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
@@ -667,8 +659,6 @@ qboolean CTFPickup_Flag(edict_t * ent, edict_t * other)
 
 				// other gets another 10 frag bonus
 				other->client->resp.score += CTF_CAPTURE_BONUS;
-
-				other->client->resp.ctf_capstreak += 1;
 
 				if(ctf_capreward->value)
 					CTFCapReward(other);
@@ -885,6 +875,10 @@ void CTFEffects(edict_t * player)
 			player->s.effects |= EF_FLAG2;
 		}
 	}
+
+	// hifi: make megahealth players glow with visible trail
+	if(player->health > 100)
+		player->s.effects |= EF_TAGTRAIL;
 
 	if (player->client->pers.inventory[ITEM_INDEX(flag1_item)])
 		player->s.modelindex3 = gi.modelindex("models/flags/flag1.md2");
