@@ -3009,7 +3009,7 @@ void ClientBeginDeathmatch(edict_t * ent)
 
 	// TNG:Freud Automaticly join saved teams.
 	if (teamplay->value && ent->client->resp.saved_team)
-		JoinTeam(ent, ent->client->resp.saved_team, 1);
+		JoinTeam(ent, ent->client->resp.saved_team, 1, 0);
 
 //FIREBLADE
 	if (deathmatch->value && !teamplay->value && ent->solid == SOLID_NOT)
@@ -3371,10 +3371,6 @@ void ClientDisconnect(edict_t * ent)
 
 	playernum = ent - g_edicts - 1;
 	gi.configstring(CS_PLAYERSKINS + playernum, "");
-
-	if (teamplay->value && !use_tourney->value) {
-		CheckForUnevenTeams();
-	}
 }
 
 void CreateGhost(edict_t * ent)

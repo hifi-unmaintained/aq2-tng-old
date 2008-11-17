@@ -1121,7 +1121,7 @@ void Cmd_Ghost_f(edict_t * ent)
 			ent->client->resp.damage_dealt = ghost_players[x].damage_dealt;
 			if (teamplay->value) {
 				if (ghost_players[x].team && ghost_players[x].team != NOTEAM)
-					JoinTeam(ent, ghost_players[x].team, 1);
+					JoinTeam(ent, ghost_players[x].team, 1, 0);
 				ent->client->resp.weapon = ghost_players[x].weapon;
 				ent->client->resp.item = ghost_players[x].item;
 			}

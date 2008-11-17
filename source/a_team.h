@@ -71,7 +71,7 @@ char * TeamName (int team);
 void OpenJoinMenu (edict_t *);
 void OpenWeaponMenu (edict_t *);
 void OpenItemMenu (edict_t * ent);
-void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose);
+void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force);
 edict_t *FindOverlap (edict_t * ent, edict_t * last_overlap);
 void CheckTeamRules (void);
 void A_Scoreboard (edict_t * ent);

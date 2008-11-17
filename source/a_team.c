@@ -316,6 +316,7 @@ int fragwarning = 0;		// countdown variable for "x Frags left"
 int holding_on_tie_check = 0;	// when a team "wins", countdown for a bit and wait...
 int current_round_length = 0;	// frames that the current team round has lasted
 int round_delay_time = 0;	// time gap between round end and new round
+int evencheck = 0;		// last time teams were evened
 
 team_t teams[TEAM_TOP];
 int	teamCount = 2;
@@ -326,8 +327,6 @@ edict_t *potential_spawns[MAX_SPAWNS];
 int num_potential_spawns;
 edict_t *teamplay_spawns[MAX_TEAMS];
 trace_t trace_t_temp;		// used by our trace replace macro in ax_team.h
-
-int num_teams = 3;		// teams in current game, fixed at 2 for now...
 
 // <TNG:Freud New spawning variables>
 int NS_num_used_farteamplay_spawns[MAX_TEAMS];
@@ -502,30 +501,30 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 		}
 
 		if(i == TEAM3)
-			JoinTeam(ent, TEAM3, 0);
+			JoinTeam(ent, TEAM3, 0, 0);
 	}
 
 	if(i == TEAM1)
-		JoinTeam(ent, TEAM1, 0);
+		JoinTeam(ent, TEAM1, 0, 0);
 	else if(i == TEAM2)
-		JoinTeam(ent, TEAM2, 0);
+		JoinTeam(ent, TEAM2, 0, 0);
 	// no team to join?!
 }
 
 void JoinTeam1 (edict_t * ent, pmenu_t * p)
 {
-	JoinTeam (ent, TEAM1, 0);
+	JoinTeam (ent, TEAM1, 0, 0);
 }
 
 void JoinTeam2 (edict_t * ent, pmenu_t * p)
 {
-	JoinTeam (ent, TEAM2, 0);
+	JoinTeam (ent, TEAM2, 0, 0);
 }
 
 void JoinTeam3 (edict_t * ent, pmenu_t * p)
 {
 	if (use_3teams->value)
-		JoinTeam (ent, TEAM3, 0);
+		JoinTeam (ent, TEAM3, 0, 0);
 }
 
 void LeaveTeams (edict_t * ent, pmenu_t * p)
@@ -959,10 +958,10 @@ void Team_f (edict_t * ent)
 		return;
 	}
 
-	JoinTeam (ent, desired_team, 1);
+	JoinTeam (ent, desired_team, 1, 0);
 }
 
-void UnevenTeamsMsg (int whichteam, int uneven_amount, char *opponent)
+void UnevenTeamsMsg (int leading_team, int other_team, int scorediff, int swap1, int swap2)
 {
 	int i;
 	edict_t *e;
@@ -972,40 +971,81 @@ void UnevenTeamsMsg (int whichteam, int uneven_amount, char *opponent)
 		e = g_edicts + i;
 		if (e->inuse)
 		{
-			if (e->client->resp.team == whichteam)
-			{
-				gi.cprintf (e, PRINT_HIGH, "Your team now has %d more player%s than %s.\n",
-				uneven_amount, uneven_amount == 1 ? "" : "s", opponent);
-				unicastSound(e, gi.soundindex("misc/comp_up.wav"), 1.0);
+			if(i == swap1 || i == swap2) {
+				gi.centerprintf (e, "You have been swapped to the other team to even the game.");
+			} else {
+				gi.centerprintf (e, "Team %s is leading with %d points more than Team %s!\nSwapping %s and %s.",
+					teams[leading_team].name, scorediff, teams[other_team].name,
+					(g_edicts + swap1)->client->pers.netname,
+					(g_edicts + swap2)->client->pers.netname
+					);
 			}
+			unicastSound(e, gi.soundindex("misc/talk1.wav"), 1.0);
 		}
 	}
 }
 
+// hifi: updated this (non-used) function to check for uneven scores and swap people between teams
+// this is the first revision which is kind of dumb, it swaps the highest fragger of the winning team
+// for the lowest fragger on the other team
 void CheckForUnevenTeams ()
 {
-	int i, onteam1 = 0, onteam2 = 0;
+	int i, numplayers = 0;
+	int leading_team = 0, other_team = 0, score_diff = 0;
+	int max_frags = 0, min_frags = 99999;
+	int max_frags_id = 0, min_frags_id = 0;
 	edict_t *e;
 
-	// only use these messages during 2-team games...
-	if (num_teams > 2)
+	if (use_3teams->value)
 		return;
 
+	if (!keep_even->value)
+		return;
+
+	if(level.time < evencheck)
+		return;
+
+	score_diff = teams[TEAM1].score - teams[TEAM2].score;
+	if(score_diff >= keep_even->value)
+		leading_team = TEAM1;
+	else if(score_diff <= (keep_even->value * -1)) {
+		leading_team = TEAM2;
+		score_diff *= -1;
+	}
+
+	if(leading_team == TEAM1)
+		other_team = TEAM2;
+	else	other_team = TEAM1;
+
+	// decide which players to swap
 	for (i = 1; i <= maxclients->value; i++)
 	{
 		e = g_edicts + i;
 		if (e->inuse)
 		{
-			if (e->client->resp.team == TEAM1)
-				onteam1++;
-			else if (e->client->resp.team == TEAM2)
-				onteam2++;
+			if (e->client->resp.team == leading_team) {
+				if(e->client->resp.score > max_frags) {
+					max_frags_id = i;
+					max_frags = e->client->resp.score;
+				}
+			} else if (e->client->resp.team == other_team) {
+				if(e->client->resp.score < min_frags) {
+					min_frags_id = i;
+					min_frags = e->client->resp.score;
+				}
+			}
+			numplayers++;
 		}
 	}
-	if (onteam1 > onteam2)
-		UnevenTeamsMsg (TEAM1, onteam1 - onteam2, teams[TEAM2].name);
-	else if (onteam2 > onteam1)
-		UnevenTeamsMsg (TEAM2, onteam2 - onteam1, teams[TEAM1].name);
+
+	if(leading_team && max_frags_id && min_frags_id && numplayers >= 6) {
+		// do the swap
+		JoinTeam((g_edicts + max_frags_id), other_team, 1, 1);
+		JoinTeam((g_edicts + min_frags_id), leading_team, 1, 1);
+		UnevenTeamsMsg(leading_team, other_team, score_diff, min_frags_id, max_frags_id);
+		// time next even check to 5 minutes away
+		evencheck = level.time + 300;
+	}
 }
 
 int IsAllowedToJoin(edict_t *ent, int desired_team)
@@ -1036,7 +1076,7 @@ int IsAllowedToJoin(edict_t *ent, int desired_team)
 	return 0;
 }
 
-void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
+void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 {
 	char *s, *a;
 
@@ -1046,7 +1086,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 	if (ent->client->resp.team == desired_team)
 		return;
 
-	if (matchmode->value && mm_allowlock->value && teams[desired_team].locked)
+	if (matchmode->value && mm_allowlock->value && teams[desired_team].locked && !force)
 	{
 		if (skip_menuclose)
 			gi.cprintf(ent, PRINT_HIGH, "Cannot join %s (locked)\n", TeamName(desired_team));
@@ -1056,7 +1096,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 		return;
 	}
 
-	if(!matchmode->value && eventeams->value && desired_team != NOTEAM) {
+	if(!matchmode->value && eventeams->value && desired_team != NOTEAM && !force) {
 		if(!IsAllowedToJoin(ent, desired_team)) {
 			gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
 			return;
@@ -1115,7 +1155,6 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose)
 
 	ent->client->resp.joined_team = (int)(realLtime*10.0f);
 
-	CheckForUnevenTeams ();
 	//AQ2:TNG - Slicer added the ctf->value coz teamplay people were spawning....
 	// hifi: force spawn in ctf if LCA is running
 	if ((((ctf->value || teamdm->value) && team_round_going) || (ctf->value && lights_camera_action))
@@ -1220,8 +1259,6 @@ void LeaveTeam (edict_t * ent)
 		ent->client->resp.captain = 0;	//SLICER: Same here
 	}
 	//AQ2:TNG END
-
-	CheckForUnevenTeams ();
 }
 
 void ReturnToMain (edict_t * ent, pmenu_t * p)
@@ -1572,7 +1609,7 @@ void ResetScores (qboolean playerScores)
 	int i;
 	edict_t *ent;
 
-	team_round_going = team_round_countdown = team_game_going = 0;
+	team_round_going = team_round_countdown = team_game_going = evencheck = 0;
 	current_round_length = matchtime = 0;
 	pause_time = 0;
 	num_ghost_players = 0;
@@ -2067,7 +2104,7 @@ int WonGame (int winner)
 			{
 				SendScores ();
 				teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
-				team_round_going = team_round_countdown = team_game_going = matchtime = 0;
+				team_round_going = team_round_countdown = team_game_going = matchtime = evencheck = 0;
 				MakeAllLivePlayersObservers ();
 				return 1;
 			}
@@ -2077,7 +2114,7 @@ int WonGame (int winner)
 			gi.bprintf (PRINT_HIGH, "Timelimit hit.\n");
 			IRC_printf (IRC_T_GAME, "Timelimit hit.");
 			EndDMLevel ();
-			team_round_going = team_round_countdown = team_game_going = 0;
+			team_round_going = team_round_countdown = team_game_going = evencheck = 0;
 			return 1;
 		}
 	}
@@ -2101,7 +2138,7 @@ int WonGame (int winner)
 				gi.bprintf (PRINT_HIGH, "Roundlimit hit.\n");
 				IRC_printf (IRC_T_GAME, "Roundlimit hit.");
 				EndDMLevel ();
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = team_round_countdown = team_game_going = evencheck = 0;
 				return 1;
 			}
 		}
@@ -2127,6 +2164,10 @@ int WonGame (int winner)
 			if (cl_ent->inuse && cl_ent->client->resp.stat_mode == 2)
 					Cmd_Stats_f(cl_ent, arg);
 		}
+	}
+
+	if(teamplay->value && !matchmode->value && !ctf->value) {
+		CheckForUnevenTeams();
 	}
 
   return 0;
@@ -2275,7 +2316,7 @@ void CheckTeamRules (void)
 				if (ctf->value)
 					ResetPlayers ();
 				EndDMLevel ();
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = team_round_countdown = team_game_going = evencheck = 0;
 				return;
 			}
 		}
@@ -2405,7 +2446,8 @@ void CheckTeamRules (void)
 					IRC_printf (IRC_T_GAME, "Timelimit hit.");
 					teams[TEAM1].ready = teams[TEAM2].ready = teams[TEAM3].ready = 0;
 					team_round_going = team_round_countdown =
-					team_game_going = 0;
+					team_game_going = evencheck = 0;
+					evencheck = 0;
 					if(matchmode->value) {
 						SendScores ();
 						MakeAllLivePlayersObservers ();
@@ -2426,7 +2468,7 @@ void CheckTeamRules (void)
 				else
 					CenterPrintAll ("Both Teams Must Be Ready!");
 	
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = team_round_countdown = team_game_going = evencheck = 0;
 				MakeAllLivePlayersObservers ();
 			}
 

@@ -608,6 +608,7 @@ void InitGame (void)
 	auto_equip = gi.cvar ("auto_equip", "0", 0);
 	
 	eventeams = gi.cvar("eventeams", "0", 0);
+	keep_even = gi.cvar("keep_even", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 
