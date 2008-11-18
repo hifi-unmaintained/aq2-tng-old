@@ -1,6 +1,16 @@
 =============================================================================
-      AQ2: The Next Generation - H1.14  --- H-changelog.txt
+      AQ2: The Next Generation - H1.15  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.14 to H1.15:
+----------------------------------------
+New Features:
+- Automagic team balancing when the scores differ too much
+  - keep_even <n>, how many round lead will issue balancing
+
+Fixes:
+- FPM calculation in the end scores was wrong
+
 ----------------------------------------
 Changes since H1.13 to H1.14:
 ----------------------------------------

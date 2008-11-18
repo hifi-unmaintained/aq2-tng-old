@@ -409,7 +409,7 @@ void A_ScoreboardEndLevel (edict_t * ent, edict_t * killer)
 	accuracy = 0;
 
       if ((int) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10))
-      	fpm = (((double) sortedscores[i] / (double) ((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10)) * 100.0);
+      	fpm = (double) sortedscores[i] / (double) (((level.framenum - game.clients[sorted[i]].resp.enterframe) / 10) / 60.0);
       else
         fpm = 0.0;
 

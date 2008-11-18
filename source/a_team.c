@@ -990,32 +990,27 @@ void UnevenTeamsMsg (int leading_team, int other_team, int scorediff, int swap1,
 // for the lowest fragger on the other team
 void CheckForUnevenTeams ()
 {
-	int i, numplayers = 0;
-	int leading_team = 0, other_team = 0, score_diff = 0;
-	int max_frags = 0, min_frags = 99999;
-	int max_frags_id = 0, min_frags_id = 0;
+	int i;
+	int leading_team = 0, other_team = 0, score_diff = 0, other_frags = 0;
+	int max_fpm_id = 0, avg_fpm_id = 0, players = 0;
+	double fpm = 0.0, time = 0.0, other_time = 0.0, max_fpm = 0.0, avg_fpm = 999.9, other_avg_fpm = 0.0, relation = 0.0;
 	edict_t *e;
 
-	if (use_3teams->value)
-		return;
-
-	if (!keep_even->value)
-		return;
-
-	if(level.time < evencheck)
+	if (!keep_even || use_3teams->value || level.time < evencheck)
 		return;
 
 	score_diff = teams[TEAM1].score - teams[TEAM2].score;
-	if(score_diff >= keep_even->value)
+	if(score_diff >= keep_even->value) {
 		leading_team = TEAM1;
-	else if(score_diff <= (keep_even->value * -1)) {
-		leading_team = TEAM2;
-		score_diff *= -1;
-	}
-
-	if(leading_team == TEAM1)
 		other_team = TEAM2;
-	else	other_team = TEAM1;
+	} else if(score_diff <= (keep_even->value * -1)) {
+		leading_team = TEAM2;
+		other_team = TEAM1;
+		score_diff *= -1;
+	} else {
+		// neither team is leading too much, going away at this point
+		return;
+	}
 
 	// decide which players to swap
 	for (i = 1; i <= maxclients->value; i++)
@@ -1023,28 +1018,64 @@ void CheckForUnevenTeams ()
 		e = g_edicts + i;
 		if (e->inuse)
 		{
-			if (e->client->resp.team == leading_team) {
-				if(e->client->resp.score > max_frags) {
-					max_frags_id = i;
-					max_frags = e->client->resp.score;
+			time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
+			/* calculate this player's fpm */
+			if ((int) time)
+				fpm = ((double) e->client->resp.score / (time / 60.0));
+			else
+				fpm = 0.0;
+			// we are interested only about players with 3 minutes or more played time
+			if((int)time >= 180) {
+				// to find the best fpm of all players with over 3 minutes of play time is easy enough
+				if(e->client->resp.team == leading_team && fpm > max_fpm) {
+					max_fpm_id = i;
+					max_fpm = fpm;
+				} else if(e->client->resp.team == other_team) {
+					other_frags += e->client->resp.score;
+					other_time += time;
 				}
-			} else if (e->client->resp.team == other_team) {
-				if(e->client->resp.score < min_frags) {
-					min_frags_id = i;
-					min_frags = e->client->resp.score;
-				}
+
 			}
-			numplayers++;
 		}
 	}
 
-	if(leading_team && max_frags_id && min_frags_id && numplayers >= 6) {
+	other_avg_fpm = (double) other_frags / (other_time / 60.0);
+
+	// now go trough the other team again to find the closest match
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
+			if(e->client->resp.team == other_team) {
+				if ((int) time >= 180) {
+					if ((int) time)
+						fpm = ((double) e->client->resp.score / (time / 60.0));
+					else
+						fpm = 0.0;
+					relation = fpm / other_avg_fpm;
+					if(relation < 1)
+						relation = 1 - relation + 1;
+					if(relation <= avg_fpm) {
+						avg_fpm = relation;
+						avg_fpm_id = i;
+					}
+				}
+			}
+			players++;
+		}
+	}
+
+	if(max_fpm_id && avg_fpm_id && players >= 6) {
 		// do the swap
-		JoinTeam((g_edicts + max_frags_id), other_team, 1, 1);
-		JoinTeam((g_edicts + min_frags_id), leading_team, 1, 1);
-		UnevenTeamsMsg(leading_team, other_team, score_diff, min_frags_id, max_frags_id);
+		JoinTeam((g_edicts + max_fpm_id), other_team, 1, 1);
+		JoinTeam((g_edicts + avg_fpm_id), leading_team, 1, 1);
+		UnevenTeamsMsg(leading_team, other_team, score_diff, max_fpm_id, avg_fpm_id);
 		// time next even check to 5 minutes away
 		evencheck = level.time + 300;
+	} else if(players >= 6) {
+		CenterPrintAll("I do think the teams are not balanced but couldn't decide what to do!");
 	}
 }
 
@@ -1111,7 +1142,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 
 	if (ent->solid != SOLID_NOT)	// alive, in game
 	{
-		if (punishkills->value)
+		if (punishkills->value && !force)
 		{
 			if (ent->client->attacker && ent->client->attacker->client &&
 			(ent->client->attacker->client != ent->client))
@@ -2165,11 +2196,6 @@ int WonGame (int winner)
 					Cmd_Stats_f(cl_ent, arg);
 		}
 	}
-
-	if(teamplay->value && !matchmode->value && !ctf->value) {
-		CheckForUnevenTeams();
-	}
-
   return 0;
 }
 
@@ -2286,6 +2312,11 @@ void CheckTeamRules (void)
 				gi.soundindex ("world/10_0.wav"), 1.0, ATTN_NONE, 0.0);
 			}
 		}
+		// hifi: check for uneven teams after the round is over
+		if(team_round_countdown == 41 && !matchmode->value)
+		{
+			CheckForUnevenTeams();
+		}
 	}
 
 	// check these rules every 1.5 seconds...
@@ -2356,7 +2387,7 @@ void CheckTeamRules (void)
 			if (vCheckVote () == true)
 			{
 				EndDMLevel ();
-				team_round_going = team_round_countdown = team_game_going = 0;
+				team_round_going = team_round_countdown = team_game_going = evencheck = 0;
 				return;
 			}
 		}
