@@ -947,8 +947,12 @@ extern cvar_t *stats_afterround; // TNG Stats, collect stats between rounds
 
 extern cvar_t *auto_join;	// Automaticly join clients to teams they were on in last map.
 extern cvar_t *auto_equip;	// Remember weapons and items for players between maps.
-extern cvar_t *eventeams;
-extern cvar_t *keep_even;
+// hifi: automagic team balancing and forcing
+extern cvar_t *auto_balance;
+extern cvar_t *auto_balance_interval;
+extern cvar_t *auto_balance_score;
+extern cvar_t *auto_balance_players;
+extern cvar_t *force_teams;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;

@@ -606,9 +606,12 @@ void InitGame (void)
 
 	auto_join = gi.cvar ("auto_join", "0", 0);
 	auto_equip = gi.cvar ("auto_equip", "0", 0);
-	
-	eventeams = gi.cvar("eventeams", "0", 0);
-	keep_even = gi.cvar("keep_even", "0", 0);
+	// hifi: automagic team balancing and forcing
+	auto_balance = gi.cvar("auto_balance", "0", 0);
+	auto_balance_interval = gi.cvar("auto_balance_interval", "180", 0);
+	auto_balance_score = gi.cvar("auto_balance_score", "5", 0);
+	auto_balance_players = gi.cvar("auto_balance_players", "6", 0);
+	force_teams = gi.cvar("force_teams", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 

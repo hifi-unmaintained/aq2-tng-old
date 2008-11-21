@@ -974,7 +974,7 @@ void UnevenTeamsMsg (int leading_team, int other_team, int scorediff, int swap1,
 			if(i == swap1 || i == swap2) {
 				gi.centerprintf (e, "You have been swapped to the other team to even the game.");
 			} else {
-				gi.centerprintf (e, "Team %s is leading with %d points more than Team %s!\nSwapping %s and %s.",
+				gi.centerprintf (e, "%s is leading with %d points more than %s!\nSwapping %s and %s.",
 					teams[leading_team].name, scorediff, teams[other_team].name,
 					(g_edicts + swap1)->client->pers.netname,
 					(g_edicts + swap2)->client->pers.netname
@@ -985,9 +985,138 @@ void UnevenTeamsMsg (int leading_team, int other_team, int scorediff, int swap1,
 	}
 }
 
-// hifi: updated this (non-used) function to check for uneven scores and swap people between teams
-// this is the first revision which is kind of dumb, it swaps the highest fragger of the winning team
-// for the lowest fragger on the other team
+/* return the player of the most average player on the team by FPM */
+int FindAveragePlayer(int team, int min_secs)
+{
+	edict_t *e;
+	int i, team_frags = 0, team_time = 0, closest_match_id = 0;
+	double average_fpm, closest_match = 999.9, fpm, relation, time;
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
+			if(e->client->resp.team == team && time >= min_secs) {
+				if ((int) time)
+					fpm = ((double) e->client->resp.score / (time / 60.0));
+				else
+					fpm = 0.0;
+
+				team_frags += e->client->resp.score;
+				team_time += time;
+			}
+		}
+	}
+
+	average_fpm = (double) team_frags / (team_time / 60.0);
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			if(e->client->resp.team == team) {
+				time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
+				if ((int) time >= 180) {
+					if ((int) time)
+						fpm = ((double) e->client->resp.score / (time / 60.0));
+					else
+						fpm = 0.0;
+					relation = fpm / average_fpm;
+					if(relation < 1)
+						relation = 1 - relation + 1;
+					if(relation <= closest_match) {
+						closest_match = relation;
+						closest_match_id = i;
+					}
+				}
+			}
+		}
+	}
+
+	return closest_match_id;
+}
+
+/* return the player id of best player in team by FPM */
+int FindBestPlayer(int team, int min_secs)
+{
+	edict_t *e;
+	int i, max_fpm_id = 0;
+	double max_fpm = 0.0, fpm, time;
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
+			if(time >= min_secs && e->client->resp.team == team) {
+				if ((int) time)
+					fpm = ((double) e->client->resp.score / (time / 60.0));
+				else
+					fpm = 0.0;
+
+				if(fpm > max_fpm) {
+					max_fpm_id = i;
+					max_fpm = fpm;
+				}
+			}
+		}
+	}
+
+	return max_fpm_id;
+}
+
+int FindNewestPlayer(int team)
+{
+	edict_t *e;
+	int i, player_id = 0;
+	double time, player_time = 999.99;
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			if(e->client->resp.team == team) {
+				time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
+				if(time < player_time) {
+					player_id = i;
+					player_time = time;
+				}
+			}
+		}
+	}
+
+	return player_id;
+}
+
+void CalculatePlayers(int *team1, int *team2, int *team3, int *spectator)
+{
+	edict_t *e;
+	int i;
+
+	for (i = 1; i <= maxclients->value; i++)
+	{
+		e = g_edicts + i;
+		if (e->inuse)
+		{
+			if(e->client->resp.team == TEAM1 && team1 != NULL)
+				(*team1)++;
+			else if(e->client->resp.team == TEAM2 && team2 != NULL)
+				(*team2)++;
+			else if(e->client->resp.team == TEAM3 && team3 != NULL)
+				(*team3)++;
+			else if(e->client->resp.team == NOTEAM && spectator != NULL)
+				(*spectator)++;
+			// if it's none of the above, what the heck is it?!
+		}
+	}
+}
+
+// hifi: updated this (non-used) function to check for uneven scores and swap people between teams, now with more logic!
 void CheckForUnevenTeams ()
 {
 	int i;
@@ -995,86 +1124,84 @@ void CheckForUnevenTeams ()
 	int max_fpm_id = 0, avg_fpm_id = 0, players = 0;
 	double fpm = 0.0, time = 0.0, other_time = 0.0, max_fpm = 0.0, avg_fpm = 999.9, other_avg_fpm = 0.0, relation = 0.0;
 	edict_t *e;
+	int team1 = 0, team2 = 0;
 
-	if (!keep_even || use_3teams->value || level.time < evencheck)
+	if(auto_balance->value || use_3teams->value)
+		return;
+
+	CalculatePlayers(&team1, &team2, NULL, NULL);
+	players = team1 + team2;
+
+	// balance player amount
+	int swap_player = 0;
+	if(team1 > team2+1) {
+		leading_team = TEAM1;
+		other_team = TEAM2;
+		swap_player = FindNewestPlayer(TEAM1);
+	} else if(team2 > team1+1) {
+		leading_team = TEAM2;
+		other_team = TEAM1;
+		swap_player = FindNewestPlayer(TEAM2);
+	}
+
+	if(swap_player) {
+		e = g_edicts + swap_player;
+		gi.centerprintf (e, "You have been swapped to the other team to even the game.");
+		unicastSound(e, gi.soundindex("misc/talk1.wav"), 1.0);
+		JoinTeam(e, other_team, 1, 1);
+		return;
+	}
+		
+	if(level.time < evencheck || players < auto_balance_players->value ||
+			auto_balance_score->value < 1 || auto_balance_interval->value < 0)
 		return;
 
 	score_diff = teams[TEAM1].score - teams[TEAM2].score;
-	if(score_diff >= keep_even->value) {
+	if(score_diff >= auto_balance_score->value) {
 		leading_team = TEAM1;
 		other_team = TEAM2;
-	} else if(score_diff <= (keep_even->value * -1)) {
+	} else if(score_diff <= (auto_balance_score->value * -1)) {
 		leading_team = TEAM2;
 		other_team = TEAM1;
 		score_diff *= -1;
 	} else {
-		// neither team is leading too much, going away at this point
 		return;
 	}
 
-	// decide which players to swap
-	for (i = 1; i <= maxclients->value; i++)
-	{
-		e = g_edicts + i;
-		if (e->inuse)
-		{
-			time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
-			/* calculate this player's fpm */
-			if ((int) time)
-				fpm = ((double) e->client->resp.score / (time / 60.0));
-			else
-				fpm = 0.0;
-			// we are interested only about players with 3 minutes or more played time
-			if((int)time >= 180) {
-				// to find the best fpm of all players with over 3 minutes of play time is easy enough
-				if(e->client->resp.team == leading_team && fpm > max_fpm) {
-					max_fpm_id = i;
-					max_fpm = fpm;
-				} else if(e->client->resp.team == other_team) {
-					other_frags += e->client->resp.score;
-					other_time += time;
-				}
+	// decide which type of balance should we do
+	if((leading_team == TEAM1 && team1 > team2) || (leading_team == TEAM2 && team2 > team1)) {
+		avg_fpm_id = FindAveragePlayer(leading_team, 0);
+		e = g_edicts + avg_fpm_id;
+		gi.centerprintf (e, "You have been swapped to the other team to even the game.");
+		JoinTeam(e, other_team, 1, 1);
 
-			}
-		}
+		evencheck = level.time + auto_balance_interval->value;
+		return;
+	} else if((leading_team == TEAM1 && team2 > team1) || (leading_team == TEAM2 && team1 > team2)) {
+		// if the losing team has more players than winning, do nothing
+		// NOTE: this might cause a weird situation when the losing team has more players than
+		//       winning for a long time and the score difference is like 10 points. after that
+		//       when the teams are again balanced by player amount the next piece of code
+		//       will swap the best players out of the leading team to losing many times in a row
+		//       if the gap is not filled quickly enough and will make the situation backwards
+		//
+		//       however the situation described above shouldn't happen too often so for now I'm
+		//       not doing any special code for this
+		return;
 	}
 
-	other_avg_fpm = (double) other_frags / (other_time / 60.0);
+	// if all above fails, do the smartest thing possible
+	max_fpm_id = FindBestPlayer(leading_team, auto_balance_interval->value);
+	avg_fpm_id = FindAveragePlayer(other_team, auto_balance_interval->value);
 
-	// now go trough the other team again to find the closest match
-	for (i = 1; i <= maxclients->value; i++)
-	{
-		e = g_edicts + i;
-		if (e->inuse)
-		{
-			time = (double) ((level.framenum - e->client->resp.enterframe) / 10);
-			if(e->client->resp.team == other_team) {
-				if ((int) time >= 180) {
-					if ((int) time)
-						fpm = ((double) e->client->resp.score / (time / 60.0));
-					else
-						fpm = 0.0;
-					relation = fpm / other_avg_fpm;
-					if(relation < 1)
-						relation = 1 - relation + 1;
-					if(relation <= avg_fpm) {
-						avg_fpm = relation;
-						avg_fpm_id = i;
-					}
-				}
-			}
-			players++;
-		}
-	}
-
-	if(max_fpm_id && avg_fpm_id && players >= 6) {
+	if(max_fpm_id && avg_fpm_id) {
 		// do the swap
 		JoinTeam((g_edicts + max_fpm_id), other_team, 1, 1);
 		JoinTeam((g_edicts + avg_fpm_id), leading_team, 1, 1);
 		UnevenTeamsMsg(leading_team, other_team, score_diff, max_fpm_id, avg_fpm_id);
-		// time next even check to 5 minutes away
-		evencheck = level.time + 300;
-	} else if(players >= 6) {
+		// time next even check to 3 minutes away
+		evencheck = level.time + auto_balance_interval->value;
+	} else {
 		CenterPrintAll("I do think the teams are not balanced but couldn't decide what to do!");
 	}
 }
@@ -1127,7 +1254,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 		return;
 	}
 
-	if(!matchmode->value && eventeams->value && desired_team != NOTEAM && !force) {
+	if(!matchmode->value && force_teams->value && desired_team != NOTEAM && !force) {
 		if(!IsAllowedToJoin(ent, desired_team)) {
 			gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
 			return;

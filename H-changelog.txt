@@ -1,6 +1,20 @@
 =============================================================================
-      AQ2: The Next Generation - H1.15  --- H-changelog.txt
+      AQ2: The Next Generation - H1.16  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.15 to H1.16:
+----------------------------------------
+Changes:
+ - More intelligent balancer
+ - Wrote helper functions to find different kind of players from teams, it
+   makes the code more readable and understandable
+ - New cvar naming for team balancing and added more configurable stuff
+   - auto_balance 0/1, use automatic player balancing
+   - auto_balance_interval, interval to check balance, default 180 seconds
+   - auto_balance_score, how big score difference triggers balancing, def. 5
+   - auto_balance_players, min players to trigger balancing, default 6
+   - force_teams 0/1, prevent changing/joining the team with more players
+
 ----------------------------------------
 Changes since H1.14 to H1.15:
 ----------------------------------------
