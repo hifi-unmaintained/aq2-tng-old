@@ -1,6 +1,16 @@
 =============================================================================
-      AQ2: The Next Generation - H1.16  --- H-changelog.txt
+      AQ2: The Next Generation - H1.17  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.16 to H1.17:
+----------------------------------------
+New Features:
+ - sv softquit - will exit the server after current map completes
+   and clients will try to reconnect, useful for map cycle updates!
+
+Fixes:
+ - Forgot to add new auto_balance cvars to g_main.c, whoops
+
 ----------------------------------------
 Changes since H1.15 to H1.16:
 ----------------------------------------
