@@ -1171,11 +1171,13 @@ void CheckForUnevenTeams ()
 	// decide which type of balance should we do
 	if((leading_team == TEAM1 && team1 > team2) || (leading_team == TEAM2 && team2 > team1)) {
 		avg_fpm_id = FindAveragePlayer(leading_team, 0);
-		e = g_edicts + avg_fpm_id;
-		gi.centerprintf (e, "You have been swapped to the other team to even the game.");
-		JoinTeam(e, other_team, 1, 1);
+		if(avg_fpm_id) {
+			e = g_edicts + avg_fpm_id;
+			gi.centerprintf (e, "You have been swapped to the other team to even the game.");
+			JoinTeam(e, other_team, 1, 1);
 
-		evencheck = level.time + auto_balance_interval->value;
+			evencheck = level.time + auto_balance_interval->value;
+		}
 		return;
 	} else if((leading_team == TEAM1 && team2 > team1) || (leading_team == TEAM2 && team1 > team2)) {
 		// if the losing team has more players than winning, do nothing
