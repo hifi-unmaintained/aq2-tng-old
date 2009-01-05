@@ -872,6 +872,7 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 	gi.configstring(CS_PLAYERSKINS + playernum, skin);
 }
 
+void RemoveFromJoinQueue(edict_t *e);
 
 void Team_f (edict_t * ent)
 {
@@ -953,8 +954,12 @@ void Team_f (edict_t * ent)
 
 	if (ent->client->resp.team == desired_team)
 	{
-		gi.cprintf (ent, PRINT_HIGH, "You are already on %s.\n",
-		TeamName (ent->client->resp.team));
+		if(ent->client->resp.wanted_team != NOTEAM) {
+			gi.cprintf (ent, PRINT_HIGH, "You have been removed from %s join queue.\n", TeamName (ent->client->resp.wanted_team));
+			RemoveFromJoinQueue(ent);
+		} else {
+			gi.cprintf (ent, PRINT_HIGH, "You are already on %s.\n", TeamName (ent->client->resp.team));
+		}
 		return;
 	}
 
@@ -1153,7 +1158,7 @@ void CheckForUnevenTeams ()
 	}
 		
 	if(level.time < evencheck || players < auto_balance_players->value ||
-			auto_balance_score->value < 1 || auto_balance_interval->value < 0)
+			auto_balance_score->value < 1 || auto_balance_interval->value < 0 || auto_balance->value < 2)
 		return;
 
 	score_diff = teams[TEAM1].score - teams[TEAM2].score;
@@ -1208,6 +1213,84 @@ void CheckForUnevenTeams ()
 	}
 }
 
+/* checks if there are pending team spaws which can be done
+ * some conditions:
+ *  - player has a pending join and a player quits from the other team -> remove pend and inform the player
+ *  - player has a pending join and another player in another team has a pending join -> swap and centerprint
+ *  - player has a pending join and quits, clear the pend if necessary
+ *
+ * actions that need to be done somewhere else:
+ *  - player lefts its team -> clear pend
+ *  - player quits -> clear player slot pend
+ *  - player changes to another team (like team 3 in 3team) -> clear pend
+ */
+
+edict_t *jqueue[32] = { NULL };
+
+void RemoveFromJoinQueue(edict_t *e)
+{
+	int i;
+	if(e == NULL)
+		return;
+
+	for(i=0;i<32;i++) {
+		if(jqueue[i] == e) {
+			jqueue[i] = NULL;
+			break;
+		}
+	}
+	// reset team wanted even if we're not on queue, just to be sure
+	e->client->resp.wanted_team = NOTEAM;
+}
+
+void CheckForQueuedJoins();
+
+void AddToJoinQueue(edict_t *e, int wanted)
+{
+	int i;
+	if(e == NULL)
+		return;
+
+	for(i=0;i<32;i++) {
+		if(jqueue[i] == NULL) {
+			jqueue[i] = e;
+			e->client->resp.wanted_team = wanted;
+			break;
+		}
+	}
+	if(team_round_countdown > 5)
+		CheckForQueuedJoins();
+}
+
+void CleanJoinQueue()
+{
+	memset(&jqueue, 0, sizeof(joinqueue));
+}
+
+void CheckForQueuedJoins()
+{
+	int i,j;
+
+	for(i=0;i<32;i++) {
+		if(jqueue[i] != NULL) {
+			// check for match
+			for(j=0;j<32;j++) {
+				if(j != i && jqueue[j] != NULL) {
+					if(jqueue[j]->client->resp.wanted_team == jqueue[i]->client->resp.team) {
+						unicastSound(jqueue[i], gi.soundindex("misc/talk1.wav"), 1.0);
+						unicastSound(jqueue[j], gi.soundindex("misc/talk1.wav"), 1.0);
+						gi.centerprintf (jqueue[i], "Wish granted. You are now on %s.", TeamName(jqueue[i]->client->resp.team));
+						gi.centerprintf (jqueue[j], "Wish granted. You are now on %s.", TeamName(jqueue[j]->client->resp.team));
+						JoinTeam (jqueue[i], jqueue[i]->client->resp.wanted_team, 1, 1);
+						JoinTeam (jqueue[j], jqueue[j]->client->resp.wanted_team, 1, 1);
+						break;
+					}
+				}
+			}
+		}
+	}
+}
+
 int IsAllowedToJoin(edict_t *ent, int desired_team)
 {
 	int i, onteam1 = 0, onteam2 = 0;
@@ -1243,8 +1326,10 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 	if (!skip_menuclose)
 		PMenu_Close (ent);
 
-	if (ent->client->resp.team == desired_team)
+	if (ent->client->resp.team == desired_team) {
+		RemoveFromJoinQueue(ent);
 		return;
+	}
 
 	if (matchmode->value && mm_allowlock->value && teams[desired_team].locked && !force)
 	{
@@ -1258,7 +1343,12 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 
 	if(!matchmode->value && force_teams->value && desired_team != NOTEAM && !force) {
 		if(!IsAllowedToJoin(ent, desired_team)) {
-			gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
+			if(joinqueue->value) {
+				gi.centerprintf(ent, "Team %s has too many players but you're on queue", TeamName(desired_team));
+				AddToJoinQueue(ent, desired_team);
+			} else {
+				gi.centerprintf(ent, "Cannot join %s (has too many players)", TeamName(desired_team));
+			}
 			return;
 		}
 	}
@@ -1266,6 +1356,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 	a = (ent->client->resp.team == NOTEAM) ? "joined" : "changed to";
 
 	ent->client->resp.team = desired_team;
+	RemoveFromJoinQueue(ent);
 	s = Info_ValueForKey (ent->client->pers.userinfo, "skin");
 	AssignSkin (ent, s, false);
 
@@ -1398,6 +1489,7 @@ void LeaveTeam (edict_t * ent)
 
 	ent->client->resp.joined_team = 0;
 	ent->client->resp.team = NOTEAM;
+	RemoveFromJoinQueue(ent);
 	//AQ2:TNG Slicer 
 	if (matchmode->value)
 	{
@@ -1819,6 +1911,7 @@ qboolean StartClient (edict_t * ent)
 	ent->solid = SOLID_NOT;
 	ent->svflags |= SVF_NOCLIENT;
 	ent->client->resp.team = NOTEAM;
+	ent->client->resp.wanted_team = NOTEAM;
 	ent->client->ps.gunindex = 0;
 	gi.linkentity (ent);
 
@@ -2445,6 +2538,7 @@ void CheckTeamRules (void)
 		if(team_round_countdown == 41 && !matchmode->value)
 		{
 			CheckForUnevenTeams();
+			CheckForQueuedJoins();
 		}
 	}
 

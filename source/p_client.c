@@ -1882,6 +1882,7 @@ void InitClientResp(gclient_t * client)
 	}
 
 	client->resp.team = NOTEAM;
+	client->resp.wanted_team = NOTEAM;
 
 	// TNG:Freud, restore team from previous map
 	if (auto_join->value && team)
@@ -3360,6 +3361,8 @@ void ClientDisconnect(edict_t * ent)
 		gi.WriteShort(ent - g_edicts);
 		gi.WriteByte(MZ_LOGOUT);
 		gi.multicast(ent->s.origin, MULTICAST_PVS);
+	} else if(joinqueue->value) {
+		RemoveFromJoinQueue(ent);
 	}
 
 	gi.unlinkentity(ent);

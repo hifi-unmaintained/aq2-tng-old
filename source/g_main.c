@@ -420,6 +420,7 @@ cvar_t *auto_balance_interval;
 cvar_t *auto_balance_score;
 cvar_t *auto_balance_players;
 cvar_t *force_teams;
+cvar_t *joinqueue;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;
@@ -851,6 +852,7 @@ void CheckDMRules (void)
 	}
 }
 
+void CleanJoinQueue();
 
 /*
   =============
@@ -908,6 +910,11 @@ void ExitLevel (void)
 			teams[i].score = 0;
 			// AQ2 TNG - Reset serverinfo score cvars too
 			gi.cvar_forceset(teams[i].teamscore->name, "0");
+		}
+
+		if(joinqueue->value)
+		{
+			CleanJoinQueue();
 		}
 	}
 	//FIREBLADE

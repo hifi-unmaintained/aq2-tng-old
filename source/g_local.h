@@ -953,6 +953,7 @@ extern cvar_t *auto_balance_interval;
 extern cvar_t *auto_balance_score;
 extern cvar_t *auto_balance_players;
 extern cvar_t *force_teams;
+extern cvar_t *joinqueue;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
@@ -1363,6 +1364,7 @@ typedef struct
   gitem_t *weapon;		// weapon for teamplay
 
   int team;			// team the player is on
+  int wanted_team;
   int saved_team;
   int ctf_state;
   int ctf_capstreak;

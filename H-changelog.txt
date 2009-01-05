@@ -1,6 +1,15 @@
 =============================================================================
-      AQ2: The Next Generation - H1.18  --- H-changelog.txt
+      AQ2: The Next Generation - H1.19  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.18 to H1.19:
+----------------------------------------
+Changes:
+ - auto_balance now accepts value "2" for extended balancing
+
+New Features:
+ - New cvar: joinqueue which enables players to change teams with force_teams
+
 ----------------------------------------
 Changes since H1.17 to H1.18:
 ----------------------------------------
