@@ -1131,7 +1131,7 @@ void CheckForUnevenTeams ()
 	edict_t *e;
 	int team1 = 0, team2 = 0;
 
-	if(auto_balance->value || use_3teams->value)
+	if(!auto_balance->value || use_3teams->value)
 		return;
 
 	CalculatePlayers(&team1, &team2, NULL, NULL);
@@ -1158,7 +1158,7 @@ void CheckForUnevenTeams ()
 	}
 		
 	if(level.time < evencheck || players < auto_balance_players->value ||
-			auto_balance_score->value < 1 || auto_balance_interval->value < 0 || auto_balance->value < 2)
+			auto_balance_score->value < 1 || auto_balance_interval->value < 1 || auto_balance->value < 2)
 		return;
 
 	score_diff = teams[TEAM1].score - teams[TEAM2].score;
