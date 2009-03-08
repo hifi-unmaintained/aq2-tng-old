@@ -1803,7 +1803,7 @@ void InitClientPersistant(gclient_t * client)
 	client->pers.weapon = item;
 	client->pers.lastweapon = item;
 
-	if ((int) wp_flags->value & WPF_KNIFE && !instagib->value) {
+	if (((int) wp_flags->value & WPF_KNIFE || knife_single->value) && !instagib->value) {
 		item = GET_ITEM(KNIFE_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1;
 		if (!(int) wp_flags->value & WPF_MK23) {
