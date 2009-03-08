@@ -635,7 +635,20 @@ void Cmd_Weapon_f(edict_t * ent)
 		if (dead)
 			return;
 		if (ent->client->weaponstate == WEAPON_READY) {
-			ent->client->resp.knife_mode = !(ent->client->resp.knife_mode);
+
+			// knife mode forcing
+			if(!knife_mode->value)
+				ent->client->resp.knife_mode = !(ent->client->resp.knife_mode);
+			else if(knife_mode->value == 1) {
+				if(ent->client->resp.knife_mode == 0)
+					return;
+				ent->client->resp.knife_mode = 0;
+			} else if(knife_mode->value > 1) {
+				if(ent->client->resp.knife_mode == 1)
+					return;
+				ent->client->resp.knife_mode = 1;
+			}
+
 			ent->client->weaponstate = WEAPON_ACTIVATING;
 			if (ent->client->resp.knife_mode) {
 				gi.cprintf(ent, PRINT_HIGH, "Switching to throwing\n");

@@ -613,6 +613,8 @@ void InitGame (void)
 	auto_balance_players = gi.cvar("auto_balance_players", "6", 0);
 	force_teams = gi.cvar("force_teams", "0", 0);
 	joinqueue = gi.cvar("joinqueue", "0", 0);
+	knife_mode = gi.cvar("knife_mode", "0", 0);
+	knife_single = gi.cvar("knife_single", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 

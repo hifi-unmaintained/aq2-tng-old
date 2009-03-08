@@ -707,7 +707,10 @@ void Cmd_Use_f (edict_t * ent)
 	{
 		if (ent->client->curr_weap != KNIFE_NUM)
 		{
-			ent->client->resp.knife_mode = 1;
+			if(knife_mode->value == 1)
+				ent->client->resp.knife_mode = 0;
+			else
+				ent->client->resp.knife_mode = 1;
 		}
 		else // switch to throwing mode if a knife is already out
 		{
@@ -720,7 +723,10 @@ void Cmd_Use_f (edict_t * ent)
 	{
 		if (ent->client->curr_weap != KNIFE_NUM)
 		{
-			ent->client->resp.knife_mode = 0;
+			if(knife_mode->value == 2)
+				ent->client->resp.knife_mode = 1;
+			else
+				ent->client->resp.knife_mode = 0;
 		}
 		else // switch to slashing mode if a knife is already out
 		{

@@ -421,6 +421,8 @@ cvar_t *auto_balance_score;
 cvar_t *auto_balance_players;
 cvar_t *force_teams;
 cvar_t *joinqueue;
+cvar_t *knife_mode;
+cvar_t *knife_single;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;

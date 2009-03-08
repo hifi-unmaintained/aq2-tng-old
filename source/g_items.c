@@ -291,7 +291,7 @@ void AddItem(edict_t *ent, gitem_t *item)
 			ent->client->pers.max_grenades = 6;
 		if (ent->client->pers.max_rockets < 4)
 			ent->client->pers.max_rockets = 4;
-		if (ent->client->knife_max < 20)
+		if (ent->client->knife_max < 20 && !knife_single->value)
 			ent->client->knife_max = 20;
 		if (ent->client->grenade_max < 4)
 			ent->client->grenade_max = 4;

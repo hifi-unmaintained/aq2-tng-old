@@ -1822,7 +1822,10 @@ void InitClientPersistant(gclient_t * client)
 	client->pers.max_grenades = 50;
 	client->pers.max_cells = 1;
 	client->pers.max_slugs = 20;
-	client->knife_max = 10;
+	if(knife_single->value)
+		client->knife_max = 1;
+	else
+		client->knife_max = 10;
 	client->grenade_max = 2;
 
 	client->pers.connected = true;
@@ -2903,7 +2906,10 @@ void PutClientInServer(edict_t * ent)
 		client->mk23_rds = 0;
 		client->dual_rds = 0;
 	}
-	client->knife_max = 10;
+	if(knife_single->value)
+		client->knife_max = 1;
+	else
+		client->knife_max = 10;
 	client->grenade_max = 2;
 
 	ent->lasersight = NULL;

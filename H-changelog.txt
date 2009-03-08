@@ -1,6 +1,13 @@
 =============================================================================
-      AQ2: The Next Generation - H1.20  --- H-changelog.txt
+      AQ2: The Next Generation - H1.21  --- H-changelog.txt
 =============================================================================
+----------------------------------------
+Changes since H1.20 to H1.21:
+----------------------------------------
+New Features:
+ - new cvar: knife_mode - 0 = both, 1 = throw only, 2 = slash only
+ - new cvar: knife_single - 1 = only one knife
+
 ----------------------------------------
 Changes since H1.19 to H1.20:
 ----------------------------------------
