@@ -464,13 +464,13 @@ void JoinTeamAuto (edict_t * ent, pmenu_t * p)
 		i = TEAM2;
 	else if (num2 > num1)
 		i = TEAM1;
-	else if (teams[TEAM1].score > teams[TEAM2].score)
-		i = TEAM2;
-	else if (teams[TEAM2].score > teams[TEAM1].score)
-		i = TEAM1;
 	else if(ctf->value && ctf_red > ctf_blue)
 		i = TEAM2;
 	else if(ctf->value && ctf_blue > ctf_red)
+		i = TEAM1;
+	else if (teams[TEAM1].score > teams[TEAM2].score)
+		i = TEAM2;
+	else if (teams[TEAM2].score > teams[TEAM1].score)
 		i = TEAM1;
 	else
 		i = TEAM1;
@@ -1343,7 +1343,7 @@ void JoinTeam (edict_t * ent, int desired_team, int skip_menuclose, int force)
 
 	if(!matchmode->value && force_teams->value && desired_team != NOTEAM && !force) {
 		if(!IsAllowedToJoin(ent, desired_team)) {
-			if(joinqueue->value) {
+			if(joinqueue->value && ent->client->resp.team != NOTEAM) {
 				gi.centerprintf(ent, "Team %s has too many players but you're on queue", TeamName(desired_team));
 				AddToJoinQueue(ent, desired_team);
 			} else {
@@ -1690,6 +1690,8 @@ void UpdateJoinMenu (edict_t * ent)
 		joinmenu[4].SelectFunc = JoinTeam1;
 		joinmenu[6].text = "Join Blue Team";
 		joinmenu[6].SelectFunc = JoinTeam2;
+		joinmenu[8].text = NULL;
+		joinmenu[8].SelectFunc = NULL;
 		joinmenu[11].text = "Auto-join team";
 		joinmenu[11].SelectFunc = JoinTeamAuto;
 		if (ctf_forcejoin->string && *ctf_forcejoin->string)

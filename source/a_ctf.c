@@ -465,6 +465,7 @@ void CTFCapReward(edict_t * ent)
 	edict_t etemp;
 	int was_bandaging = 0;
 	int band;
+	int is_reloading = 0;
 
 	ent->client->resp.ctf_capstreak++;
 
@@ -484,12 +485,17 @@ void CTFCapReward(edict_t * ent)
 		}
 
 	}
+	// give one extra clip for  if the player is reloading
+	if(ent->client->weaponstate == WEAPON_RELOADING)
+		is_reloading = 1;
+
 	// give pistol clips
 	if ((int)wp_flags->value & WPF_MK23) {
 		item = GET_ITEM(MK23_ANUM);
 		client->mk23_rds = client->mk23_max;
 		client->pers.inventory[ITEM_INDEX(item)] += 1*band;
 	}
+
 
 	int player_weapon = client->resp.weapon->typeNum;
 	// find out which weapon the player is holding in it's inventory
@@ -506,6 +512,7 @@ void CTFCapReward(edict_t * ent)
 			player_weapon = SNIPER_NUM;
 	}
 
+
 	// if player has no special weapon, give the initial one
 	if (player_weapon == MP5_NUM) {
 		if(client->unique_weapon_total < 1) {
@@ -516,6 +523,9 @@ void CTFCapReward(edict_t * ent)
 		item = GET_ITEM(MP5_ANUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
 		client->mp5_rds = client->mp5_max;
+
+		if(client->curr_weap == MP5_NUM && is_reloading)
+			client->pers.inventory[ITEM_INDEX(item)] += 1;
 	} else if (player_weapon == M4_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(M4_NUM);
@@ -525,6 +535,9 @@ void CTFCapReward(edict_t * ent)
 		item = GET_ITEM(M4_ANUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 1*band;
 		client->m4_rds = client->m4_max;
+
+		if(client->curr_weap == MP5_NUM && is_reloading)
+			client->pers.inventory[ITEM_INDEX(item)] += 1;
 	} else if (player_weapon == M3_NUM) {
 		if(client->unique_weapon_total < 1) {
 			item = GET_ITEM(M3_NUM);
@@ -562,12 +575,6 @@ void CTFCapReward(edict_t * ent)
 	} else if (player_weapon == KNIFE_NUM) {
 		item = GET_ITEM(KNIFE_NUM);
 		client->pers.inventory[ITEM_INDEX(item)] = 10*band;
-	}
-
-	// stop bandaging if doing so, stop bleeding, full health
-	if(ent->client->bandaging) {
-		//ent->client->weaponstate = WEAPON_ACTIVATING;
-		//ent->client->ps.gunframe = 0;
 	}
 
 	if(ent->client->bandaging || ent->client->bandage_stopped)

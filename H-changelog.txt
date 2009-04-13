@@ -1,6 +1,15 @@
 =============================================================================
-      AQ2: The Next Generation - H1.21  --- H-changelog.txt
+      AQ2: The Next Generation - H1.22  --- H-changelog.txt
 =============================================================================
+
+----------------------------------------
+Changes since H1.21 to H1.22:
+----------------------------------------
+Fixes:
+ - fix joinqueue bug when joining player is not on a team
+ - fix reload on cap missing cartridge bug (at least partially for m4 & mp5 where it matters)
+ - remove ghost menu item in CTF team selection
+
 ----------------------------------------
 Changes since H1.20 to H1.21:
 ----------------------------------------
