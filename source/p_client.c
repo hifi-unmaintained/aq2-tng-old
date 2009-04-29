@@ -2942,7 +2942,7 @@ void PutClientInServer(edict_t * ent)
 				AllItems(ent);
 			}
 
-			if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && tp_weapons->value))
+			if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && dm_choose->value))
 				EquipClient(ent);
 			else if (deathmatch->value)
 				EquipClientDM(ent);

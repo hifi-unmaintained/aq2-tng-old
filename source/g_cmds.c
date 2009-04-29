@@ -857,7 +857,7 @@ void Cmd_Inven_f (edict_t * ent)
 	}
 	//FIREBLADE
 
-	if (cl->showinventory)
+	if (cl->showinventory || instagib->value)
 	{
 		cl->showinventory = false;
 		return;
@@ -880,7 +880,7 @@ void Cmd_Inven_f (edict_t * ent)
 	}
 	//FIREBLADE
 
-	if(tp_weapons->value) {
+	if(dm_choose->value) {
 		OpenWeaponMenu (ent);
 		cl->showinventory = false;
 		return;
