@@ -956,6 +956,7 @@ extern cvar_t *force_teams;
 extern cvar_t *joinqueue;
 extern cvar_t *knife_mode;
 extern cvar_t *knife_single;
+extern cvar_t *tp_weapons;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;

@@ -109,7 +109,7 @@ void SpawnSpecs(edict_t * ent)
 	edict_t *spot;
 	int i;
 
-	if(item_respawnmode->value || instagib->value)
+	if(item_respawnmode->value)
 		return;
 
 	for(i = 0; i<ITEM_COUNT; i++)

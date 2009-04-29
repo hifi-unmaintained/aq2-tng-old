@@ -721,7 +721,9 @@ T_Damage (edict_t * targ, edict_t * inflictor, edict_t * attacker, vec3_t dir,
 	vec_t dist;
 	float targ_maxs2;		//FB 6/1/99
 
-	if(instagib->value && mod == MOD_SNIPER) damage = 9999;
+	/* in instagib the rifle make so much damage you always gib when hit */
+	if(instagib->value && mod == MOD_SNIPER)
+		damage = 9999;
 
 	// do this before teamplay check
 	if (!targ->takedamage)

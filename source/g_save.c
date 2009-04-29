@@ -615,6 +615,7 @@ void InitGame (void)
 	joinqueue = gi.cvar("joinqueue", "0", 0);
 	knife_mode = gi.cvar("knife_mode", "0", 0);
 	knife_single = gi.cvar("knife_single", "0", 0);
+	tp_weapons = gi.cvar("tp_weapons", "0", 0);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 

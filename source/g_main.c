@@ -423,6 +423,7 @@ cvar_t *force_teams;
 cvar_t *joinqueue;
 cvar_t *knife_mode;
 cvar_t *knife_single;
+cvar_t *tp_weapons;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;

@@ -1145,8 +1145,6 @@ edict_t *Drop_Item (edict_t * ent, gitem_t * item)
 	vec3_t forward, right;
 	vec3_t offset;
 
-	if(instagib->value) return;
-
 	dropped = G_Spawn ();
 
 	dropped->classname = item->classname;
@@ -1386,11 +1384,6 @@ be on an entity that hasn't spawned yet.
 */
 void SpawnItem (edict_t * ent, gitem_t * item)
 {
-	if(instagib->value) {
-		G_FreeEdict (ent);
-		return;
-	}
-
 	PrecacheItem (item);
 
 	if (ent->spawnflags)

@@ -1388,8 +1388,8 @@ void TossItemsOnDeath(edict_t * ent)
 	gitem_t *item;
 	qboolean quad;
 
-	// don't bother dropping stuff when allweapons/items is active
-	if (allitem->value && allweapon->value) {
+	// don't bother dropping stuff when allweapons/items is active or playing instagib
+	if ((allitem->value && allweapon->value) || instagib->value) {
 		// remove the lasersight because then the observer might have it
 		item = GET_ITEM(LASER_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
@@ -2584,12 +2584,6 @@ void EquipClientDM(edict_t * ent)
 
 	client = ent->client;
 
-	if(instagib->value)
-	{
-		client->sniper_rds = 99;
-		return;
-	}
-
 	// add grapple (hifi)
 	if(ctf_grapple->value)
 		client->pers.inventory[ITEM_INDEX(FindItem("Grapple"))] = 1;
@@ -2938,24 +2932,31 @@ void PutClientInServer(edict_t * ent)
 //FIREBLADE
 	if (!going_observer) {
 
-		// items up here so that the bandolier will change equipclient below
-		if (allitem->value) {
-			AllItems(ent);
-		}
+		/* give only sniper rounds for instagib rifle regarding in which mode the game is */
+		if(instagib->value)
+		{
+			ent->client->sniper_rds = 99;
+		} else {
+			// items up here so that the bandolier will change equipclient below
+			if (allitem->value) {
+				AllItems(ent);
+			}
 
-		if (teamplay->value && !teamdm->value && ctf->value != 2)
-			EquipClient(ent);
-		else if (deathmatch->value)
-			EquipClientDM(ent);
+			if ((teamplay->value && !teamdm->value && ctf->value != 2) || (!ctf->value && tp_weapons->value))
+				EquipClient(ent);
+			else if (deathmatch->value)
+				EquipClientDM(ent);
+
+			if (allweapon->value) {
+				AllWeapons(ent);
+			}
+		}
 
 		if (ent->client->menu) {
 			PMenu_Close(ent);
 			return;
 		}
-//FIREBLADE
-		if (allweapon->value) {
-			AllWeapons(ent);
-		}
+
 		// force the current weapon up
 		client->newweapon = client->pers.weapon;
 		ChangeWeapon(ent);

@@ -262,7 +262,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 
 	index = ITEM_INDEX (ent->item);
 
-	if ((((int)dmflags->value & DF_WEAPONS_STAY) || coop->value)
+	if ((((int)dmflags->value & DF_WEAPONS_STAY) || coop->value || instagib->value)
 		&& other->client->pers.inventory[index])
 	{
 		if (!(ent->spawnflags & (DROPPED_ITEM | DROPPED_PLAYER_ITEM)))
@@ -484,7 +484,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 			{
 				if (deathmatch->value)
 				{
-					if ((int)dmflags->value & DF_WEAPONS_STAY)
+					if ((int)dmflags->value & DF_WEAPONS_STAY || instagib->value)
 						ent->flags |= FL_RESPAWN;
 					else
 						SetRespawn (ent, 30);
@@ -945,9 +945,7 @@ void Drop_Weapon (edict_t * ent, gitem_t * item)
 	gitem_t *replacement;
 	edict_t *temp = NULL;
 
-	if(instagib->value) return;
-
-	if ((int) (dmflags->value) & DF_WEAPONS_STAY)
+	if ((int) (dmflags->value) & DF_WEAPONS_STAY || instagib->value)
 		return;
 
 	// AQ:TNG - JBravo fixing weapon farming
