@@ -864,7 +864,25 @@ void AssignSkin (edict_t * ent, const char *s, qboolean nickChanged)
 			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, teams[ent->client->resp.team].skin);
 			break;
 		default:
-			Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, s);
+			// enable forcing skin base
+			if(dm_skin->string[0]) {
+				Q_strncpyz(t, s, sizeof(t));
+
+				strcpy(t, dm_skin->string);
+
+				if(strrchr(t, '/') == NULL) {
+					strcat(t, "/");
+
+					if ((p = strrchr (s, '/')) != NULL)
+						strcat(t, p+1);
+					else
+						strcat(t, "resdog");
+				}
+
+				Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, t);
+			} else {
+				Com_sprintf(skin, sizeof(skin), "%s\\%s", ent->client->pers.netname, s);
+			}
 			break;
 		}
 	}

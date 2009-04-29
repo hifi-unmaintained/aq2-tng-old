@@ -1,6 +1,16 @@
 =============================================================================
-      AQ2: The Next Generation - H1.22  --- H-changelog.txt
+      AQ2: The Next Generation - H1.23  --- H-changelog.txt
 =============================================================================
+
+----------------------------------------
+Changes since H1.22 to H1.23:
+----------------------------------------
+Fixes:
+ - instagib mode shouldn't crash the server anymore, also cleaned up the code
+
+New Features:
+ - dm_choose - teamplay like weapon choosing for any deathmatch game, including teamdm
+ - dm_skin - force dm skin base or full skin
 
 ----------------------------------------
 Changes since H1.21 to H1.22:

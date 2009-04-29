@@ -616,6 +616,7 @@ void InitGame (void)
 	knife_mode = gi.cvar("knife_mode", "0", 0);
 	knife_single = gi.cvar("knife_single", "0", 0);
 	dm_choose = gi.cvar("dm_choose", "0", 0);
+	dm_skin = gi.cvar ("dm_skin", "", CVAR_LATCH);
 
 	use_punch = gi.cvar ("use_punch", "1", 0);
 

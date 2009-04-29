@@ -424,6 +424,7 @@ cvar_t *joinqueue;
 cvar_t *knife_mode;
 cvar_t *knife_single;
 cvar_t *dm_choose;
+cvar_t *dm_skin;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;
