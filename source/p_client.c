@@ -1417,6 +1417,8 @@ void TossAmmoOnDeath(edict_t * ent)
 		ent->client->pers.inventory[ITEM_INDEX(item)]++;
 		EjectItem(ent, item);
 	}
+
+	DeadDropSpec(ent);
 }
 
 //zucc toss items on death
