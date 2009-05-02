@@ -1919,7 +1919,7 @@ void InitClientResp(gclient_t * client)
 	client->resp.ir = 1;
 
 	// TNG:Freud, restore weapons and items from last map.
-	if (auto_equip->value && teamplay->value && !teamdm->value && ctf->value != 2) {
+	if (auto_equip->value && ((teamplay->value && !teamdm->value) || dm_choose->value) && ctf->value != 2) {
 		if (item)
 			client->resp.item = item;
 		if (weapon)
@@ -3424,6 +3424,10 @@ void ClientDisconnect(edict_t * ent)
 	ent->inuse = false;
 	ent->classname = "disconnected";
 	ent->client->pers.connected = false;
+
+	// reset weapon and item
+	ent->client->resp.weapon = NULL;
+	ent->client->resp.item = NULL;
 
 	playernum = ent - g_edicts - 1;
 	gi.configstring(CS_PLAYERSKINS + playernum, "");
