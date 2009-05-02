@@ -1126,7 +1126,7 @@ static void drop_make_touchable (edict_t * ent)
 	if (deathmatch->value)
 	{
 		//AQ2:TNG - Slicer
-		if (ctf->value)
+		if (ctf->value || dm_choose->value)
 		{
 			ent->nextthink = level.time + 6;
 			ent->think = G_FreeEdict;

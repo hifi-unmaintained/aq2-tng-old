@@ -154,7 +154,7 @@ static void MakeTouchSpecThink(edict_t * ent)
 		}
 	} else if ((teamplay->value || dm_choose->value) && !allitem->value) {
 		//AQ2:TNG - Slicer This works for Special Items 
-		if (ctf->value) {
+		if (ctf->value || dm_choose->value) {
 			ent->nextthink = level.time + 6;
 			ent->think = G_FreeEdict;
 		} else {

@@ -1382,6 +1382,43 @@ void EjectWeapon(edict_t * ent, gitem_t * item)
 
 }
 
+void TossAmmoOnDeath(edict_t * ent)
+{
+	int i;
+	int weapons[5] = { MP5_NUM, M4_NUM, M3_NUM, HC_NUM, SNIPER_NUM };
+	int ammos[5] = { MP5_ANUM, M4_ANUM, SHELL_ANUM, SHELL_ANUM, SNIPER_ANUM };
+	gitem_t *item, *ammo = NULL;
+
+	// remove the lasersight because then the observer might have it - from TossItemsOnDeath
+	item = GET_ITEM(LASER_NUM);
+	ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
+
+	for(i = 0; i < 5; i++) {
+		item = GET_ITEM(weapons[i]);
+		if (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
+			ammo = GET_ITEM(ammos[i]);
+			// in strict mode we only drop ammunition if the player has extra clips or shells
+			if(dm_dropammo->value > 1 &&
+				(((ammos[i] == SHELL_ANUM && ent->client->pers.inventory[ITEM_INDEX(ammo)] < 7) ||
+				  (ammos[i] == SNIPER_ANUM && ent->client->pers.inventory[ITEM_INDEX(ammo)] < 10) )
+				|| ent->client->pers.inventory[ITEM_INDEX(ammo)] == 0))
+				continue;
+			EjectItem(ent, ammo);
+		}
+	}
+
+	item = GET_ITEM(KNIFE_NUM);
+	if (ent->client->pers.inventory[ITEM_INDEX(item)] > 0) {
+		EjectItem(ent, item);
+	}
+	if (((int) wp_flags->value & WPF_MK23) && ((int) wp_flags->value & WPF_DUAL)) {
+		// give the player a dual pistol so they can be sure to drop one
+		item = GET_ITEM(DUAL_NUM);
+		ent->client->pers.inventory[ITEM_INDEX(item)]++;
+		EjectItem(ent, item);
+	}
+}
+
 //zucc toss items on death
 void TossItemsOnDeath(edict_t * ent)
 {
@@ -1389,7 +1426,7 @@ void TossItemsOnDeath(edict_t * ent)
 	qboolean quad;
 
 	// don't bother dropping stuff when allweapons/items is active or playing instagib
-	if ((allitem->value && allweapon->value) || instagib->value) {
+	if (allitem->value && allweapon->value) {
 		// remove the lasersight because then the observer might have it
 		item = GET_ITEM(LASER_NUM);
 		ent->client->pers.inventory[ITEM_INDEX(item)] = 0;
@@ -1397,7 +1434,7 @@ void TossItemsOnDeath(edict_t * ent)
 	}
 
 	// don't drop weapons if allweapons is on
-	if (allweapon->value) {
+	if (allweapon->value || instagib->value) {
 		DeadDropSpec(ent);
 		return;
 	}
@@ -1635,7 +1672,10 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 			CTFFragBonuses(self, inflictor, attacker);
 
 		//TossClientWeapon (self);
-		TossItemsOnDeath(self);
+		if(dm_dropammo->value && !teamplay->value)
+			TossAmmoOnDeath(self);
+		else
+			TossItemsOnDeath(self);
 
 		if (ctf->value)
 			CTFDeadDropFlag(self);
@@ -3324,8 +3364,12 @@ void ClientDisconnect(edict_t * ent)
 	}
 
 	// drop items if they are alive/not observer
-	if (ent->solid != SOLID_NOT)
-		TossItemsOnDeath(ent);
+	if (ent->solid != SOLID_NOT) {
+		if(dm_dropammo->value && !teamplay->value)
+			TossAmmoOnDeath(ent);
+		else
+			TossItemsOnDeath(ent);
+	}
 
 	// zucc free the lasersight if applicable
 	if (ent->lasersight)
