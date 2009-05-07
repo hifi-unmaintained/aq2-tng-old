@@ -252,6 +252,16 @@ SetSpecWeapHolder (edict_t * ent)
   gi.linkentity (ent);
 }
 
+qboolean Pickup_WeaponAmmo(edict_t *ent, edict_t *other)
+{
+	gitem_t *ammo;
+	ammo = FindItem (ent->item->ammo);
+	if (!(ent->spawnflags & DROPPED_ITEM))
+		return Add_Ammo (other, ammo, ammo->quantity);
+	else
+		return true; // we picked up an empty weapon
+}
+
 qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 {
 	int index, index2;
@@ -288,8 +298,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		{
 			if (!(ent->spawnflags & DROPPED_ITEM))
 			{
-				ammo = FindItem (ent->item->ammo);
-				addAmmo = Add_Ammo (other, ammo, ammo->quantity);
+				addAmmo = Pickup_WeaponAmmo(ent, other);
 				if(addAmmo && !(ent->spawnflags & DROPPED_PLAYER_ITEM))
 					SetRespawn (ent, weapon_respawn->value);
 
@@ -307,8 +316,12 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	}
 	else if (ent->item->typeNum == MP5_NUM)
 	{
-		if (other->client->unique_weapon_total >= unique_weapons->value + band)
-			return false;		// we can't get it
+		if (other->client->unique_weapon_total >= unique_weapons->value + band) {
+			if(dm_pickup->value)
+				return Pickup_WeaponAmmo(ent, other);
+			else
+				return false;		// we can't get it
+		}
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -320,8 +333,12 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	}
 	else if (ent->item->typeNum == M4_NUM)
 	{
-		if (other->client->unique_weapon_total >= unique_weapons->value + band)
-			return false;		// we can't get it
+		if (other->client->unique_weapon_total >= unique_weapons->value + band) {
+			if(dm_pickup->value)
+				return Pickup_WeaponAmmo(ent, other);
+			else
+				return false;		// we can't get it
+		}
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -333,8 +350,12 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	}
 	else if (ent->item->typeNum == M3_NUM)
 	{
-		if (other->client->unique_weapon_total >= unique_weapons->value + band)
-			return false;		// we can't get it
+		if (other->client->unique_weapon_total >= unique_weapons->value + band) {
+			if(dm_pickup->value)
+				return Pickup_WeaponAmmo(ent, other);
+			else
+				return false;		// we can't get it
+		}
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -361,8 +382,12 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	}
 	else if (ent->item->typeNum == HC_NUM)
 	{
-		if (other->client->unique_weapon_total >= unique_weapons->value + band)
-			return false;		// we can't get it
+		if (other->client->unique_weapon_total >= unique_weapons->value + band) {
+			if(dm_pickup->value)
+				return Pickup_WeaponAmmo(ent, other);
+			else
+				return false;		// we can't get it
+		}
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -381,8 +406,12 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 	}
 	else if (ent->item->typeNum == SNIPER_NUM)
 	{
-		if (other->client->unique_weapon_total >= unique_weapons->value + band)
-			return false;		// we can't get it
+		if (other->client->unique_weapon_total >= unique_weapons->value + band) {
+			if(dm_pickup->value)
+				return Pickup_WeaponAmmo(ent, other);
+			else
+				return false;		// we can't get it
+		}
 
 		other->client->pers.inventory[index]++;
 		other->client->unique_weapon_total++;
@@ -413,8 +442,7 @@ qboolean Pickup_Weapon (edict_t * ent, edict_t * other)
 		{
 			if (!(ent->spawnflags & DROPPED_ITEM))
 			{
-				ammo = FindItem (ent->item->ammo);
-				addAmmo = Add_Ammo (other, ammo, ammo->quantity);
+				addAmmo = Pickup_WeaponAmmo(ent, other);
 				if(addAmmo && !(ent->spawnflags & DROPPED_PLAYER_ITEM))
 					SetRespawn (ent, weapon_respawn->value);
 
@@ -4545,7 +4573,6 @@ Weapon_Generic_Knife (edict_t * ent, int FRAME_ACTIVATE_LAST,
 		//FIREBLADE
 		{
 			ent->client->latched_buttons &= ~BUTTON_ATTACK;
-
 
 			if (ent->client->resp.knife_mode == 1)
 			{
