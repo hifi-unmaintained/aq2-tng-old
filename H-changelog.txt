@@ -10,6 +10,7 @@ Fixes:
 
 New Features:
  - dm_pickup - you can pick up special weapons as ammunition
+ - dm_timer - show respawn timer, useful in CTF
 
 ----------------------------------------
 Changes since H1.22 to H1.23:

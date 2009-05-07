@@ -960,6 +960,7 @@ extern cvar_t *dm_choose;
 extern cvar_t *dm_skin;
 extern cvar_t *dm_dropammo;
 extern cvar_t *dm_pickup;
+extern cvar_t *dm_timer;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;

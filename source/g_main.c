@@ -427,6 +427,7 @@ cvar_t *dm_choose;
 cvar_t *dm_skin;
 cvar_t *dm_dropammo;
 cvar_t *dm_pickup;
+cvar_t *dm_timer;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;

@@ -1665,7 +1665,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 			self->client->respawn_time = level.time + teamdm_respawn->value;
 		}
 		else {
-			self->client->respawn_time = level.time + 1.0;
+			self->client->respawn_time = level.time + /*1.0*/ 5.0;
 		}
 		LookAtKiller(self, inflictor, attacker);
 		self->client->ps.pmove.pm_type = PM_DEAD;
@@ -3896,6 +3896,12 @@ void ClientBeginServerFrame(edict_t * ent)
 	else
 		client->weapon_thunk = false;
 
+	// in deathmatch, only wait for attack button
+	if (deathmatch->value)
+		buttonMask = BUTTON_ATTACK;
+	else
+		buttonMask = -1;
+
 	if (ent->deadflag) {
 		// wait for any button just going down
 		if (level.time > client->respawn_time) {
@@ -3938,19 +3944,26 @@ void ClientBeginServerFrame(edict_t * ent)
 			}
 //FIREBLADE
 			else {
-				// in deathmatch, only wait for attack button
-
-				if (deathmatch->value)
-					buttonMask = BUTTON_ATTACK;
-				else
-					buttonMask = -1;
-
 				if ((client->latched_buttons & buttonMask) ||
 				    (deathmatch->value && ((int) dmflags->value & DF_FORCE_RESPAWN))) {
 					respawn(ent);
 					client->latched_buttons = 0;
 				}
 			}
+		} else if (dm_timer->value) {
+			float secs = client->respawn_time - level.time;
+			if((int)(secs * 10) % 10) {
+				if(client->latched_buttons & buttonMask)
+					gi.centerprintf(ent, " \n\nRespawning in %d...\n", (int)(secs+1));
+				else
+					gi.centerprintf(ent, "Hit ATTACK to respawn!\n\nRespawning in %d...\n", (int)(secs+1));
+			} else if (secs < 1) {
+				if(client->latched_buttons & buttonMask)
+					gi.centerprintf(ent, " \n\nRespawning...\n");
+				else
+					gi.centerprintf(ent, "Hit ATTACK to respawn!\n");
+			}
+
 		}
 		return;
 	}
