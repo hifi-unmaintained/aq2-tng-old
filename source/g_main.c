@@ -426,6 +426,7 @@ cvar_t *knife_single;
 cvar_t *dm_choose;
 cvar_t *dm_skin;
 cvar_t *dm_dropammo;
+cvar_t *dm_pickup;
 
 //TNG:Freud - new spawning system
 cvar_t *use_oldspawns;

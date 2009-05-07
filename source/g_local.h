@@ -959,6 +959,7 @@ extern cvar_t *knife_single;
 extern cvar_t *dm_choose;
 extern cvar_t *dm_skin;
 extern cvar_t *dm_dropammo;
+extern cvar_t *dm_pickup;
 
 // TNG:Freud - new spawning system
 extern cvar_t *use_oldspawns;
