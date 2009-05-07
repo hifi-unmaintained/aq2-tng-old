@@ -1,6 +1,15 @@
 =============================================================================
-      AQ2: The Next Generation - H1.23  --- H-changelog.txt
+      AQ2: The Next Generation - H1.24  --- H-changelog.txt
 =============================================================================
+
+----------------------------------------
+Changes since H1.23 to H1.24:
+----------------------------------------
+Fixes:
+ - instagib mode shouldn't crash the server anymore, also cleaned up the code
+
+New Features:
+ - dm_pickup - you can pick up special weapons as ammunition
 
 ----------------------------------------
 Changes since H1.22 to H1.23:

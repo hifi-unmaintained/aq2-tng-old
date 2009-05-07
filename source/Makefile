@@ -112,7 +112,7 @@ BASE_CFLAGS=-DC_ONLY
 
 #use these cflags to optimize it
 ifdef DEBUG
-	CFLAGS=$(BASE_CFLAGS) -g -O2 -Wall
+	CFLAGS=$(BASE_CFLAGS) -g3 -O2 -Wall
 else
 	CFLAGS=$(BASE_CFLAGS) -march=$(TUNE) -mtune=$(TUNE) -O6 -ffast-math -funroll-loops \
 		-fomit-frame-pointer -fexpensive-optimizations -falign-loops=2 \
@@ -137,7 +137,7 @@ DO_CC=$(CC) $(CFLAGS) $(SHLIBCFLAGS) -o $@ -c $<
 GAME_OBJS = \
 	a_cmds.o a_ctf.o a_doorkick.o a_game.o a_items.o a_match.o \
 	a_menu.o a_radio.o a_team.o a_tourney.o a_vote.o a_xcmds.o a_xgame.o \
-	a_xmenu.o a_xvote.o cgf_sfx_glass.o g_ai.o g_chase.o g_cmds.o \
+	a_xmenu.o a_xvote.o a_gungame.o cgf_sfx_glass.o g_ai.o g_chase.o g_cmds.o \
 	g_combat.o g_func.o g_grapple.o g_items.o g_main.o g_misc.o g_monster.o \
 	g_phys.o g_save.o g_spawn.o g_svcmds.o g_target.o g_trigger.o \
 	g_turret.o g_utils.o g_weapon.o g_xmisc.o m_move.o \
@@ -154,9 +154,6 @@ game$(ARCH).$(SHLIBEXT) : $(GAME_OBJS)
 
 clean:
 	-rm -f $(GAME_OBJS) game$(ARCH).$(SHLIBEXT)
-
-olddepend:
-	gcc -MM $(GAME_OBJS:.o=.c)
 
 depend:
 	makedepend -I. -- $(CFLAGS) -- $(GAME_OBJS:.o=.c)
@@ -180,15 +177,4 @@ bindist: game$(ARCH).$(SHLIBEXT)
 		gamei386.so README CHANGES maplist.ini
 
 distclean: clean
-	makedepend
-	-rm -f *~ Makefile.bak gamei386.so $(PACKAGE)-$(VERSION)*.tar.gz
-
-dist: distclean
-	-rm -rf $(PACKAGE)-$(VERSION)
-	mkdir $(PACKAGE)-$(VERSION)
-	cd $(PACKAGE)-$(VERSION); \
-	for f in $(GAME_OBJS:.o=.c) *.h Makefile README CHANGES maplist.ini; \
-		do ln -s ../$$f .; done
-	tar -zchvf $(PACKAGE)-$(VERSION).tar.gz $(PACKAGE)-$(VERSION)
-	rm -rf $(PACKAGE)-$(VERSION)
-
+	-rm -f *~ Makefile.bak game*.so game*.dll $(PACKAGE)-$(VERSION)*
