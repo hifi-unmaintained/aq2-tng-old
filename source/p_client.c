@@ -1665,7 +1665,7 @@ void player_die(edict_t * self, edict_t * inflictor, edict_t * attacker, int dam
 			self->client->respawn_time = level.time + teamdm_respawn->value;
 		}
 		else {
-			self->client->respawn_time = level.time + /*1.0*/ 5.0;
+			self->client->respawn_time = level.time + 1.0;
 		}
 		LookAtKiller(self, inflictor, attacker);
 		self->client->ps.pmove.pm_type = PM_DEAD;
